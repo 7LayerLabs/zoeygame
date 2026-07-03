@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Zoey's Runway</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; touch-action:manipulation; }
+  html,body { height:100%; overflow:hidden; font-family:'Arial Rounded MT Bold','Comic Sans MS',system-ui,sans-serif; }
+  body { background:linear-gradient(160deg,#ffd6ec 0%,#e7c6ff 50%,#c8e7ff 100%); }
+
+  .screen { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; padding:12px; }
+  .screen.on { display:flex; }
+
+  /* ---------- TITLE ---------- */
+  #titleWord { font-size:clamp(40px,9vw,90px); letter-spacing:2px; text-align:center;
+    background:linear-gradient(90deg,#ff2d95,#c13cff,#ff2d95,#8338ec,#ff2d95); background-size:300% 100%;
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:shimmer 3.5s linear infinite;
+    filter:drop-shadow(0 3px 0 #fff) drop-shadow(0 8px 18px rgba(255,45,149,.5)); }
+  @keyframes shimmer { to { background-position:300% 0; } }
+  #titleSub { font-size:clamp(18px,4vw,34px); color:#8338ec; margin-top:6px; text-shadow:0 2px 0 #fff; }
+  .bigBtn { border:none; cursor:pointer; margin-top:34px; padding:20px 54px; font-size:clamp(24px,5vw,40px); font-family:inherit; color:#fff; background:linear-gradient(180deg,#ff5fa2,#ff2d95); border-radius:60px; box-shadow:0 8px 0 #c9126e,0 14px 24px rgba(0,0,0,.18); display:flex; align-items:center; gap:14px; }
+  .bigBtn:active { transform:translateY(6px); box-shadow:0 2px 0 #c9126e; }
+  .sparkle { position:absolute; width:26px; height:26px; animation:tw 1.6s ease-in-out infinite; pointer-events:none; }
+  @keyframes tw { 0%,100%{transform:scale(.4);opacity:.3} 50%{transform:scale(1.15);opacity:1} }
+
+  /* ---------- STUDIO ---------- */
+  #screen-studio { justify-content:flex-start; gap:6px; }
+  #studioTop { display:flex; align-items:center; gap:14px; margin-top:4px; flex-wrap:wrap; justify-content:center; }
+  #tabs { display:flex; gap:8px; }
+  .tab { border:none; font-family:inherit; display:flex; align-items:center; gap:8px; padding:10px 18px; font-size:clamp(14px,3vw,20px); border-radius:40px; background:rgba(255,255,255,.6); color:#8338ec; cursor:pointer; box-shadow:0 3px 8px rgba(0,0,0,.12); }
+  .tab.on { background:linear-gradient(180deg,#ff5fa2,#ff2d95); color:#fff; }
+  .sw { display:flex; align-items:center; justify-content:center; }
+  .screenTitle { font-size:clamp(20px,4.5vw,34px); color:#ff2d95; text-shadow:0 2px 0 #fff; }
+  #faceWrap { flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; width:100%; }
+  #faceWrap svg { height:100%; max-height:44vh; width:auto; filter:drop-shadow(0 10px 16px rgba(131,56,236,.25)); }
+  #palette { width:100%; max-width:800px; max-height:46vh; overflow-y:auto; background:rgba(255,255,255,.75); border-radius:26px; padding:12px 14px; box-shadow:0 8px 22px rgba(131,56,236,.18); }
+  .palRow { display:flex; align-items:center; gap:8px; padding:6px 0; }
+  .palIcon { width:44px; height:44px; flex:0 0 44px; background:#fff; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,.12); }
+  .swatches { display:flex; gap:8px; flex-wrap:wrap; }
+  .sw { width:46px; height:46px; border-radius:50%; border:4px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.18); cursor:pointer; position:relative; flex:0 0 auto; }
+  .sw:active { transform:scale(.9); }
+  .sw.picked { border-color:#ffd60a; box-shadow:0 0 0 4px #ff2d95,0 3px 8px rgba(0,0,0,.2); }
+  .sw.clear { background:#fff; }
+  .sw.clear::after { content:""; position:absolute; left:8px; right:8px; top:50%; height:5px; background:#ccc; border-radius:3px; transform:rotate(-45deg); }
+  #glitBtn { width:auto; min-width:52px; padding:0 16px; border-radius:26px; height:52px; background:linear-gradient(135deg,#fff3b0,#ffd60a); display:flex; align-items:center; justify-content:center; }
+  #glitBtn.picked { border-color:#ff2d95; }
+  #runwayBtn { margin:10px 0 4px; padding:14px 44px; font-size:clamp(20px,4.5vw,32px); }
+
+  /* ---------- RUNWAY ---------- */
+  #screen-runway { background:linear-gradient(180deg,#2d1b4e 0%,#4a2a7a 55%,#1a0f33 100%); overflow:hidden; }
+  #curtain { position:absolute; top:0; left:0; right:0; height:32%; background:linear-gradient(180deg,rgba(0,0,0,0) 50%,rgba(0,0,0,.35)),repeating-linear-gradient(90deg,#a4133c 0 34px,#c9184a 34px 68px); border-bottom:10px solid #ffd60a; }
+  .spot { position:absolute; top:0; width:26vw; height:70vh; background:radial-gradient(ellipse at top,rgba(255,255,220,.32),transparent 70%); clip-path:polygon(42% 0,58% 0,100% 100%,0 100%); pointer-events:none; }
+  /* catwalk comes straight at the camera */
+  #floor { position:absolute; top:32%; bottom:0; left:0; right:0; background:linear-gradient(180deg,#3c2a63,#241645); }
+  #catwalkEdge { position:absolute; top:32%; bottom:0; left:0; right:0; background:#ffd60a; clip-path:polygon(43% 0,57% 0,86% 100%,14% 100%); }
+  #catwalkTop { position:absolute; top:32%; bottom:0; left:0; right:0; background:linear-gradient(180deg,#ff8fab 0%,#ff5fa2 60%,#ff2d95 100%); clip-path:polygon(44% 0,56% 0,83% 100%,17% 100%); }
+  #catwalkTop::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(180deg, transparent 0 44px, rgba(255,255,255,.15) 44px 48px); }
+  #crowdL,#crowdR { position:absolute; bottom:-2px; width:24%; height:20%; z-index:6; }
+  #crowdL { left:0; } #crowdR { right:0; }
+  .flash { position:absolute; width:14px; height:14px; border-radius:50%; background:radial-gradient(#fff,rgba(255,255,255,0) 70%); box-shadow:0 0 18px 6px rgba(255,255,255,.75); animation:flash .45s ease-out forwards; z-index:7; pointer-events:none; }
+  @keyframes flash { 0%{transform:scale(.3);opacity:1} 100%{transform:scale(2.4);opacity:0} }
+  #walkerBox { position:absolute; bottom:-2vh; left:50%; height:64vh; transform:translate(-50%,-42vh) scale(.16); transform-origin:bottom center; transition:transform 3.4s cubic-bezier(.4,.1,.6,.9), opacity .35s; opacity:0; will-change:transform; z-index:5; }
+  #walkerBox.snap { transition:none; }
+  #walkerBox.visible { opacity:1; }
+  #walkerBox.near { transform:translate(-50%,0) scale(1); }
+  #walkerBox svg { height:100%; width:auto; }
+  #walkerBox.strut svg { animation:bob .5s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0) rotate(-1.4deg)} 50%{transform:translateY(-10px) rotate(1.4deg)} }
+  #walkerBox.pose svg { animation:pose 1.1s ease-in-out; }
+  @keyframes pose { 0%{transform:scale(1)} 40%{transform:scale(1.09) rotate(-3deg)} 100%{transform:scale(1)} }
+  #walkerName { position:absolute; top:8%; width:100%; text-align:center; font-size:clamp(30px,7vw,60px); color:#ffd60a; text-shadow:0 3px 0 #a4133c,0 8px 18px rgba(0,0,0,.5); z-index:5; }
+
+  /* ---------- RESULTS ---------- */
+  #screen-results { justify-content:flex-start; gap:4px; padding-top:10px; }
+  #bubble { min-height:56px; max-width:640px; background:#fff; border-radius:22px; padding:10px 20px; font-size:clamp(15px,3.4vw,22px); color:#5a189a; box-shadow:0 6px 16px rgba(0,0,0,.15); text-align:center; display:flex; align-items:center; justify-content:center; }
+  #judgeGrid { display:grid; grid-template-columns:minmax(64px,110px) repeat(3,minmax(70px,120px)) minmax(64px,110px); gap:6px 10px; align-items:center; justify-items:center; margin-top:6px; }
+  .judgeCell svg { width:100%; max-width:110px; height:auto; }
+  .judgeName { font-size:clamp(10px,2vw,14px); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.4); text-align:center; margin-top:-6px; }
+  .rowLabel { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:clamp(12px,2.4vw,17px); color:#5a189a; }
+  .rowLabel svg { width:clamp(40px,7vw,64px); height:auto; border-radius:50%; background:#fff; box-shadow:0 3px 8px rgba(0,0,0,.15); }
+  .card { width:clamp(52px,9vw,84px); height:clamp(64px,11vw,104px); border-radius:14px; background:#fff; display:flex; align-items:center; justify-content:center; font-size:clamp(30px,6vw,52px); color:#ff2d95; box-shadow:0 5px 12px rgba(0,0,0,.2); transform:scale(0) rotate(-180deg); transition:transform .45s cubic-bezier(.34,1.56,.64,1); }
+  .card.blue { color:#3a86ff; }
+  .card.flip { transform:scale(1) rotate(0deg); }
+  .total { font-size:clamp(26px,5.5vw,46px); color:#fff; text-shadow:0 3px 0 rgba(0,0,0,.25); opacity:0; transition:opacity .4s; }
+  .total.show { opacity:1; }
+  #screen-results { background:linear-gradient(180deg,#8338ec,#ff5fa2); }
+  #banner { font-size:clamp(34px,8vw,72px); color:#ffd60a; text-shadow:0 4px 0 #a4133c,0 10px 22px rgba(0,0,0,.4); opacity:0; transform:scale(.3); transition:all .5s cubic-bezier(.34,1.56,.64,1); margin-top:6px; text-align:center; }
+  #banner.show { opacity:1; transform:scale(1); }
+  #againBtn { margin-top:10px; padding:14px 40px; font-size:clamp(20px,4.5vw,30px); visibility:hidden; }
+
+  #confetti { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:50; }
+  .conf { position:absolute; top:-20px; width:12px; height:18px; border-radius:3px; animation:fall linear forwards; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(720deg); } }
+</style>
+</head>
+<body>
+
+<!-- ============ SHARED DOLL + JUDGE ART ============ -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <radialGradient id="glitGrad"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#ffd60a"/></radialGradient>
+    <radialGradient id="skinz" cx="50%" cy="42%" r="65%"><stop offset="0%" stop-color="#f8d2ac"/><stop offset="75%" stop-color="#f2c19a"/><stop offset="100%" stop-color="#e2ab80"/></radialGradient>
+    <radialGradient id="skinc" cx="50%" cy="42%" r="65%"><stop offset="0%" stop-color="#9d6a4c"/><stop offset="75%" stop-color="#8d5a3b"/><stop offset="100%" stop-color="#78482c"/></radialGradient>
+    <radialGradient id="irisz"><stop offset="0%" stop-color="#b07ef0"/><stop offset="55%" stop-color="#7b2cbf"/><stop offset="100%" stop-color="#43146e"/></radialGradient>
+    <radialGradient id="irisc"><stop offset="0%" stop-color="#7ff0e4"/><stop offset="55%" stop-color="#2ec4b6"/><stop offset="100%" stop-color="#0f7d72"/></radialGradient>
+
+    <!-- Zoey's doll -->
+    <g id="doll-z">
+      <g class="z-hairback" data-hair="long">
+        <path d="M62,60 Q40,120 58,210 Q66,258 88,262 L88,180 Q70,130 78,92 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M158,60 Q180,120 162,210 Q154,258 132,262 L132,180 Q150,130 142,92 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M70,95 Q62,150 70,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M150,95 Q158,150 150,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="z-hairback" data-hair="pigtails" style="display:none">
+        <ellipse cx="46" cy="118" rx="17" ry="44" fill="var(--z-hairc,#6b3410)"/>
+        <ellipse cx="174" cy="118" rx="17" ry="44" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M42,90 Q36,125 44,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M178,90 Q184,125 176,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <circle cx="54" cy="78" r="7" fill="#ff2d95"/><circle cx="166" cy="78" r="7" fill="#ff2d95"/>
+      </g>
+      <g class="z-hairback" data-hair="curly" style="display:none">
+        <circle cx="54" cy="98" r="18" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="48" cy="134" r="16" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="56" cy="170" r="15" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="70" cy="198" r="13" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="166" cy="98" r="18" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="172" cy="134" r="16" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="164" cy="170" r="15" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="150" cy="198" r="13" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="50" cy="93" r="5" fill="rgba(255,255,255,.25)"/>
+        <circle cx="170" cy="129" r="4" fill="rgba(255,255,255,.25)"/>
+      </g>
+      <g class="z-hairback" data-hair="bun" style="display:none">
+        <circle cx="110" cy="24" r="21" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="103" cy="17" r="6" fill="rgba(255,255,255,.25)"/>
+        <path d="M92,26 Q110,38 128,26" stroke="#ffd60a" stroke-width="4" fill="none"/>
+      </g>
+      <ellipse cx="58" cy="98" rx="7" ry="11" fill="#f2c19a"/>
+      <ellipse cx="162" cy="98" rx="7" ry="11" fill="#f2c19a"/>
+      <ellipse cx="110" cy="90" rx="52" ry="57" fill="url(#skinz)"/>
+      <g class="z-hairfront" data-hair="long">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M56,74 Q52,130 62,185 Q72,155 68,115 Q60,96 56,74 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M164,74 Q168,130 158,185 Q148,155 152,115 Q160,96 164,74 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M76,40 Q96,30 114,32" stroke="rgba(255,255,255,.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="z-hairfront" data-hair="pigtails" style="display:none">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M76,40 Q96,30 114,32" stroke="rgba(255,255,255,.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="z-hairfront" data-hair="curly" style="display:none">
+        <circle cx="68" cy="46" r="13" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="90" cy="36" r="14" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="112" cy="32" r="14" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="134" cy="36" r="14" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="154" cy="46" r="13" fill="var(--z-hairc,#6b3410)"/>
+        <circle cx="88" cy="32" r="4" fill="rgba(255,255,255,.3)"/>
+        <circle cx="132" cy="32" r="4" fill="rgba(255,255,255,.3)"/>
+      </g>
+      <g class="z-hairfront" data-hair="bun" style="display:none">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q144,42 112,44 Q76,42 58,80 Z" fill="var(--z-hairc,#6b3410)"/>
+        <path d="M110,26 L110,44" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+      </g>
+      <!-- eyeshadow -->
+      <ellipse cx="86" cy="82" rx="19" ry="10" fill="var(--z-shadow,transparent)" opacity=".8"/>
+      <ellipse cx="134" cy="82" rx="19" ry="10" fill="var(--z-shadow,transparent)" opacity=".8"/>
+      <path d="M70,79 Q86,70 102,79" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>
+      <path d="M118,79 Q134,70 150,79" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>
+      <!-- eyes -->
+      <ellipse cx="86" cy="93" rx="16" ry="11" fill="#fff"/>
+      <ellipse cx="134" cy="93" rx="16" ry="11" fill="#fff"/>
+      <circle cx="86" cy="93" r="8.5" fill="url(#irisz)"/><circle cx="134" cy="93" r="8.5" fill="url(#irisz)"/>
+      <circle cx="86" cy="93" r="4" fill="#14082b"/><circle cx="134" cy="93" r="4" fill="#14082b"/>
+      <circle cx="89" cy="90" r="2.2" fill="#fff"/><circle cx="137" cy="90" r="2.2" fill="#fff"/>
+      <circle cx="83" cy="96" r="1.2" fill="#fff" opacity=".8"/><circle cx="131" cy="96" r="1.2" fill="#fff" opacity=".8"/>
+      <path d="M70,88 Q86,75 102,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M118,88 Q134,75 150,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M70,99 Q86,105 102,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M118,99 Q134,105 150,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M68,90 L60,83 M71,86 L64,78 M75,83 L70,75 M148,86 L155,78 M152,90 L160,83 M145,83 L150,75" stroke="#14082b" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M70,70 Q86,62 100,68" stroke="#4a2511" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M120,68 Q134,62 150,70" stroke="#4a2511" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <!-- blush -->
+      <ellipse cx="72" cy="116" rx="11" ry="7" fill="var(--z-blush,transparent)" opacity=".65"/>
+      <ellipse cx="148" cy="116" rx="11" ry="7" fill="var(--z-blush,transparent)" opacity=".65"/>
+      <path d="M108,108 Q112,114 108,118" stroke="#d49a6a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- lips -->
+      <path d="M92,132 Q99,124 106,130 Q110,133 114,130 Q121,124 128,132 Q121,146 110,146 Q99,146 92,132 Z" fill="var(--z-lips,#e8a0a8)"/>
+      <path d="M96,133 Q110,138 124,133" stroke="rgba(0,0,0,.18)" stroke-width="1.5" fill="none"/>
+      <ellipse cx="103" cy="140" rx="6" ry="2.4" fill="rgba(255,255,255,.35)"/>
+      <!-- glitter -->
+      <g fill="url(#glitGrad)" opacity="var(--z-glit,0)">
+        <path d="M72,74 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/><path d="M146,72 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/>
+        <path d="M98,120 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/><path d="M126,122 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M110,64 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+      </g>
+      <!-- body -->
+      <rect x="101" y="144" width="18" height="34" fill="#f2c19a"/>
+      <path d="M88,172 L132,172 L130,242 L90,242 Z" fill="#f2c19a"/>
+      <rect x="94" y="240" width="10" height="148" rx="5" fill="#f2c19a"/>
+      <rect x="116" y="240" width="10" height="148" rx="5" fill="#f2c19a"/>
+      <path d="M84,180 Q64,220 70,258" stroke="#f2c19a" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M136,180 Q156,220 150,258" stroke="#f2c19a" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <g class="z-outfit" data-style="aline">
+        <path d="M84,176 L136,176 L150,300 Q110,316 70,300 Z" fill="var(--z-dress,#ff2d95)"/>
+        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
+        <circle cx="110" cy="188" r="5" fill="#ffd60a"/>
+      </g>
+      <g class="z-outfit" data-style="gown" style="display:none">
+        <path d="M86,176 L134,176 L140,214 Q184,296 148,306 Q110,318 72,306 Q36,296 80,214 Z" fill="var(--z-dress,#ff2d95)"/>
+        <path d="M86,176 L134,176 L137,200 L83,200 Z" fill="#fff" opacity=".35"/>
+        <path d="M80,224 Q110,238 140,224" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
+        <path d="M74,262 Q110,278 146,262" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
+      </g>
+      <g class="z-outfit" data-style="party" style="display:none">
+        <path d="M84,176 L136,176 L146,252 Q137,264 128,252 Q119,264 110,252 Q101,264 92,252 Q83,264 74,252 Z" fill="var(--z-dress,#ff2d95)"/>
+        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
+        <circle cx="110" cy="206" r="4" fill="#ffd60a"/>
+      </g>
+      <g class="z-outfit" data-style="twopiece" style="display:none">
+        <path d="M84,176 L136,176 L133,222 L87,222 Z" fill="var(--z-dress,#ff2d95)"/>
+        <path d="M85,236 L135,236 L148,290 Q110,302 72,290 Z" fill="var(--z-dress,#ff2d95)"/>
+        <path d="M85,236 L135,236 L136,244 L84,244 Z" fill="#fff" opacity=".4"/>
+      </g>
+      <g fill="#fff" opacity=".55">
+        <path d="M95,200 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M124,212 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M108,240 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+      </g>
+      <path d="M92,388 L106,388 L108,400 L88,400 Z" fill="var(--z-shoe,#ffd60a)"/>
+      <path d="M114,388 L128,388 L132,400 L112,400 Z" fill="var(--z-shoe,#ffd60a)"/>
+      <g class="z-acc" data-acc="tiara" style="display:none">
+        <path d="M88,32 L94,18 L102,30 L110,14 L118,30 L126,18 L132,32 Q110,26 88,32 Z" fill="#ffd60a" stroke="#e8b800" stroke-width="1.5"/>
+        <circle cx="110" cy="19" r="3" fill="#ff2d95"/>
+      </g>
+      <g class="z-acc" data-acc="bow" style="display:none">
+        <path d="M62,52 Q50,42 48,54 Q46,66 60,62 Q52,74 64,74 Q74,74 68,60 Z" fill="#ff2d95"/>
+        <circle cx="63" cy="59" r="4" fill="#ffd60a"/>
+      </g>
+      <g class="z-acc" data-acc="earrings" style="display:none">
+        <circle cx="58" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
+        <circle cx="162" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
+      </g>
+    </g>
+
+    <!-- Robo-Bella (computer rival) -->
+    <g id="doll-c">
+      <g class="c-hairback" data-hair="long">
+        <path d="M62,60 Q40,120 58,210 Q66,258 88,262 L88,180 Q70,130 78,92 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M158,60 Q180,120 162,210 Q154,258 132,262 L132,180 Q150,130 142,92 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M70,95 Q62,150 70,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M150,95 Q158,150 150,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="c-hairback" data-hair="pigtails" style="display:none">
+        <ellipse cx="46" cy="118" rx="17" ry="44" fill="var(--c-hairc,#20124d)"/>
+        <ellipse cx="174" cy="118" rx="17" ry="44" fill="var(--c-hairc,#20124d)"/>
+        <path d="M42,90 Q36,125 44,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M178,90 Q184,125 176,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <circle cx="54" cy="78" r="7" fill="#3a86ff"/><circle cx="166" cy="78" r="7" fill="#3a86ff"/>
+      </g>
+      <g class="c-hairback" data-hair="curly" style="display:none">
+        <circle cx="54" cy="98" r="18" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="48" cy="134" r="16" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="56" cy="170" r="15" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="70" cy="198" r="13" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="166" cy="98" r="18" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="172" cy="134" r="16" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="164" cy="170" r="15" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="150" cy="198" r="13" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="50" cy="93" r="5" fill="rgba(255,255,255,.25)"/>
+        <circle cx="170" cy="129" r="4" fill="rgba(255,255,255,.25)"/>
+      </g>
+      <g class="c-hairback" data-hair="bun" style="display:none">
+        <circle cx="110" cy="24" r="21" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="103" cy="17" r="6" fill="rgba(255,255,255,.25)"/>
+        <path d="M92,26 Q110,38 128,26" stroke="#ffd60a" stroke-width="4" fill="none"/>
+      </g>
+      <ellipse cx="58" cy="98" rx="7" ry="11" fill="#8d5a3b"/>
+      <ellipse cx="162" cy="98" rx="7" ry="11" fill="#8d5a3b"/>
+      <ellipse cx="110" cy="90" rx="52" ry="57" fill="url(#skinc)"/>
+      <g class="c-hairfront" data-hair="long">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M56,74 Q52,130 62,185 Q72,155 68,115 Q60,96 56,74 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M164,74 Q168,130 158,185 Q148,155 152,115 Q160,96 164,74 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M76,40 Q96,30 114,32" stroke="rgba(255,255,255,.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="c-hairfront" data-hair="pigtails" style="display:none">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M76,40 Q96,30 114,32" stroke="rgba(255,255,255,.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+      <g class="c-hairfront" data-hair="curly" style="display:none">
+        <circle cx="68" cy="46" r="13" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="90" cy="36" r="14" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="112" cy="32" r="14" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="134" cy="36" r="14" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="154" cy="46" r="13" fill="var(--c-hairc,#20124d)"/>
+        <circle cx="88" cy="32" r="4" fill="rgba(255,255,255,.3)"/>
+        <circle cx="132" cy="32" r="4" fill="rgba(255,255,255,.3)"/>
+      </g>
+      <g class="c-hairfront" data-hair="bun" style="display:none">
+        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q144,42 112,44 Q76,42 58,80 Z" fill="var(--c-hairc,#20124d)"/>
+        <path d="M110,26 L110,44" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+      </g>
+      <ellipse cx="86" cy="82" rx="19" ry="10" fill="var(--c-shadow,transparent)" opacity=".8"/>
+      <ellipse cx="134" cy="82" rx="19" ry="10" fill="var(--c-shadow,transparent)" opacity=".8"/>
+      <path d="M70,79 Q86,70 102,79" stroke="rgba(0,0,0,.14)" stroke-width="2" fill="none"/>
+      <path d="M118,79 Q134,70 150,79" stroke="rgba(0,0,0,.14)" stroke-width="2" fill="none"/>
+      <ellipse cx="86" cy="93" rx="16" ry="11" fill="#fff"/>
+      <ellipse cx="134" cy="93" rx="16" ry="11" fill="#fff"/>
+      <circle cx="86" cy="93" r="8.5" fill="url(#irisc)"/><circle cx="134" cy="93" r="8.5" fill="url(#irisc)"/>
+      <circle cx="86" cy="93" r="4" fill="#14082b"/><circle cx="134" cy="93" r="4" fill="#14082b"/>
+      <circle cx="89" cy="90" r="2.2" fill="#fff"/><circle cx="137" cy="90" r="2.2" fill="#fff"/>
+      <circle cx="83" cy="96" r="1.2" fill="#fff" opacity=".8"/><circle cx="131" cy="96" r="1.2" fill="#fff" opacity=".8"/>
+      <path d="M70,88 Q86,75 102,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M118,88 Q134,75 150,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M70,99 Q86,105 102,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M118,99 Q134,105 150,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M68,90 L60,83 M71,86 L64,78 M75,83 L70,75 M148,86 L155,78 M152,90 L160,83 M145,83 L150,75" stroke="#14082b" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M70,70 Q86,62 100,68" stroke="#160d33" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M120,68 Q134,62 150,70" stroke="#160d33" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="72" cy="116" rx="11" ry="7" fill="var(--c-blush,transparent)" opacity=".65"/>
+      <ellipse cx="148" cy="116" rx="11" ry="7" fill="var(--c-blush,transparent)" opacity=".65"/>
+      <path d="M108,108 Q112,114 108,118" stroke="#6b4226" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M92,132 Q99,124 106,130 Q110,133 114,130 Q121,124 128,132 Q121,146 110,146 Q99,146 92,132 Z" fill="var(--c-lips,#b07a80)"/>
+      <path d="M96,133 Q110,138 124,133" stroke="rgba(0,0,0,.18)" stroke-width="1.5" fill="none"/>
+      <ellipse cx="103" cy="140" rx="6" ry="2.4" fill="rgba(255,255,255,.35)"/>
+      <g fill="url(#glitGrad)" opacity="var(--c-glit,0)">
+        <path d="M72,74 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/><path d="M146,72 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/>
+        <path d="M98,120 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/><path d="M126,122 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+      </g>
+      <rect x="101" y="144" width="18" height="34" fill="#8d5a3b"/>
+      <path d="M88,172 L132,172 L130,242 L90,242 Z" fill="#8d5a3b"/>
+      <rect x="94" y="240" width="10" height="148" rx="5" fill="#8d5a3b"/>
+      <rect x="116" y="240" width="10" height="148" rx="5" fill="#8d5a3b"/>
+      <path d="M84,180 Q64,220 70,258" stroke="#8d5a3b" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <path d="M136,180 Q156,220 150,258" stroke="#8d5a3b" stroke-width="11" fill="none" stroke-linecap="round"/>
+      <g class="c-outfit" data-style="aline">
+        <path d="M84,176 L136,176 L150,300 Q110,316 70,300 Z" fill="var(--c-dress,#3a86ff)"/>
+        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
+        <circle cx="110" cy="188" r="5" fill="#ffd60a"/>
+      </g>
+      <g class="c-outfit" data-style="gown" style="display:none">
+        <path d="M86,176 L134,176 L140,214 Q184,296 148,306 Q110,318 72,306 Q36,296 80,214 Z" fill="var(--c-dress,#3a86ff)"/>
+        <path d="M86,176 L134,176 L137,200 L83,200 Z" fill="#fff" opacity=".35"/>
+        <path d="M80,224 Q110,238 140,224" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
+        <path d="M74,262 Q110,278 146,262" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
+      </g>
+      <g class="c-outfit" data-style="party" style="display:none">
+        <path d="M84,176 L136,176 L146,252 Q137,264 128,252 Q119,264 110,252 Q101,264 92,252 Q83,264 74,252 Z" fill="var(--c-dress,#3a86ff)"/>
+        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
+        <circle cx="110" cy="206" r="4" fill="#ffd60a"/>
+      </g>
+      <g class="c-outfit" data-style="twopiece" style="display:none">
+        <path d="M84,176 L136,176 L133,222 L87,222 Z" fill="var(--c-dress,#3a86ff)"/>
+        <path d="M85,236 L135,236 L148,290 Q110,302 72,290 Z" fill="var(--c-dress,#3a86ff)"/>
+        <path d="M85,236 L135,236 L136,244 L84,244 Z" fill="#fff" opacity=".4"/>
+      </g>
+      <g fill="#fff" opacity=".55">
+        <path d="M95,200 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M124,212 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M108,240 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+      </g>
+      <path d="M92,388 L106,388 L108,400 L88,400 Z" fill="var(--c-shoe,#3a86ff)"/>
+      <path d="M114,388 L128,388 L132,400 L112,400 Z" fill="var(--c-shoe,#3a86ff)"/>
+      <g class="c-acc" data-acc="tiara" style="display:none">
+        <path d="M88,32 L94,18 L102,30 L110,14 L118,30 L126,18 L132,32 Q110,26 88,32 Z" fill="#ffd60a" stroke="#e8b800" stroke-width="1.5"/>
+        <circle cx="110" cy="19" r="3" fill="#ff2d95"/>
+      </g>
+      <g class="c-acc" data-acc="bow" style="display:none">
+        <path d="M62,52 Q50,42 48,54 Q46,66 60,62 Q52,74 64,74 Q74,74 68,60 Z" fill="#ff2d95"/>
+        <circle cx="63" cy="59" r="4" fill="#ffd60a"/>
+      </g>
+      <g class="c-acc" data-acc="earrings" style="display:none">
+        <circle cx="58" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
+        <circle cx="162" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
+      </g>
+    </g>
+
+    <!-- Judges -->
+    <g id="judge-coco">
+      <path d="M30,40 L40,12 L54,36 Z" fill="#f5cba7"/><path d="M90,40 L80,12 L66,36 Z" fill="#f5cba7"/>
+      <path d="M34,38 L41,20 L50,36 Z" fill="#e59fb2"/><path d="M86,38 L79,20 L70,36 Z" fill="#e59fb2"/>
+      <circle cx="60" cy="66" r="34" fill="#f5cba7"/>
+      <ellipse cx="47" cy="62" rx="7" ry="9" fill="#2d6a4f"/><ellipse cx="73" cy="62" rx="7" ry="9" fill="#2d6a4f"/>
+      <circle cx="47" cy="62" r="3" fill="#111"/><circle cx="73" cy="62" r="3" fill="#111"/>
+      <path d="M56,74 L64,74 L60,80 Z" fill="#e5989b"/>
+      <path d="M60,80 Q54,86 48,82 M60,80 Q66,86 72,82" stroke="#111" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M20,66 L42,70 M20,76 L42,76 M100,66 L78,70 M100,76 L78,76" stroke="#c98d5f" stroke-width="2" stroke-linecap="round"/>
+      <path d="M30,100 Q60,88 90,100 L92,124 L28,124 Z" fill="#9b5de5"/>
+      <circle cx="60" cy="104" r="6" fill="#ffd60a"/><circle cx="60" cy="116" r="5" fill="#ffd60a"/>
+    </g>
+    <g id="judge-pearl">
+      <circle cx="60" cy="30" r="16" fill="#e9ecef"/>
+      <circle cx="60" cy="68" r="32" fill="#f8d5b8"/>
+      <path d="M30,58 Q34,38 60,36 Q86,38 90,58 Q80,50 60,50 Q40,50 30,58 Z" fill="#e9ecef"/>
+      <circle cx="46" cy="66" r="13" fill="rgba(173,216,230,.5)" stroke="#c9184a" stroke-width="4"/>
+      <circle cx="74" cy="66" r="13" fill="rgba(173,216,230,.5)" stroke="#c9184a" stroke-width="4"/>
+      <path d="M59,66 L61,66" stroke="#c9184a" stroke-width="4"/>
+      <circle cx="46" cy="66" r="4" fill="#111"/><circle cx="74" cy="66" r="4" fill="#111"/>
+      <path d="M48,88 Q60,96 72,88" stroke="#c9184a" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M28,102 Q60,90 92,102 L94,124 L26,124 Z" fill="#2ec4b6"/>
+      <circle cx="48" cy="106" r="4" fill="#fff"/><circle cx="60" cy="103" r="4" fill="#fff"/><circle cx="72" cy="106" r="4" fill="#fff"/>
+    </g>
+    <g id="judge-rocky">
+      <path d="M48,38 L54,10 L60,34 L66,8 L72,36 L78,14 L82,40 Z" fill="#ff2d95"/>
+      <circle cx="60" cy="66" r="32" fill="#c68958"/>
+      <path d="M34,60 Q46,54 56,60 L56,68 Q46,72 34,66 Z" fill="#111"/>
+      <path d="M86,60 Q74,54 64,60 L64,68 Q74,72 86,66 Z" fill="#111"/>
+      <path d="M56,63 L64,63" stroke="#111" stroke-width="3"/>
+      <path d="M46,86 Q60,94 74,84" stroke="#111" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M28,102 Q60,90 92,102 L94,124 L26,124 Z" fill="#212529"/>
+      <path d="M52,104 L56,112 L60,104 L64,112 L68,104" stroke="#ffd60a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ============ TITLE ============ -->
+<div class="screen on" id="screen-title">
+  <div id="titleWord">Zoey's Runway</div>
+  <div id="titleSub">Makeup &bull; Runway &bull; Superstar!</div>
+  <button class="bigBtn" id="startBtn">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+    PLAY
+  </button>
+</div>
+
+<!-- ============ MAKEUP STUDIO ============ -->
+<div class="screen" id="screen-studio">
+  <div id="studioTop">
+    <div class="screenTitle">Zoey's Studio</div>
+    <div id="tabs">
+      <button class="tab on" data-tab="makeup">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 10c-1.5-2-4.5-3-7-1.5C2.5 10 2 12 3 13.5 5 16.5 8.5 18 12 18s7-1.5 9-4.5c1-1.5.5-3.5-2-5-2.5-1.5-5.5-.5-7 1.5z"/></svg>
+        MAKEUP
+      </button>
+      <button class="tab" data-tab="hair">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C8 3 5 6 5 10v11h3v-7c1 1 2.5 1.5 4 1.5s3-.5 4-1.5v7h3V10c0-4-3-7-7-7z"/></svg>
+        HAIR
+      </button>
+      <button class="tab" data-tab="clothes">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M9 3l3 2 3-2 2 4-2 2 2 11H7L9 9 7 7z"/></svg>
+        CLOTHES
+      </button>
+    </div>
+  </div>
+  <div id="faceWrap">
+    <svg id="studioSvg" viewBox="30 2 160 160"><use href="#doll-z"/></svg>
+  </div>
+  <div id="palette">
+    <div id="pal-makeup">
+    <div class="palRow" data-part="lips">
+      <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ff2d95"><path d="M12 10c-1.5-2-4.5-3-7-1.5C2.5 10 2 12 3 13.5 5 16.5 8.5 18 12 18s7-1.5 9-4.5c1-1.5.5-3.5-2-5-2.5-1.5-5.5-.5-7 1.5z"/></svg></div>
+      <div class="swatches"></div>
+    </div>
+    <div class="palRow" data-part="shadow">
+      <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#8338ec" stroke-width="2"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3" fill="#8338ec" stroke="none"/></svg></div>
+      <div class="swatches"></div>
+    </div>
+    <div class="palRow" data-part="blush">
+      <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#ff8fa3" stroke-width="2"/><circle cx="8" cy="13" r="2.5" fill="#ff8fa3"/><circle cx="16" cy="13" r="2.5" fill="#ff8fa3"/></svg></div>
+      <div class="swatches"></div>
+    </div>
+    <div class="palRow">
+      <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ffb703"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></div>
+      <div class="swatches"><div class="sw" id="glitBtn">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#a4133c"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+      </div></div>
+    </div>
+    </div>
+    <div id="pal-hair" style="display:none">
+      <div class="palRow" id="rowHairStyle">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#6b3410"><path d="M12 3C8 3 5 6 5 10v11h3v-7c1 1 2.5 1.5 4 1.5s3-.5 4-1.5v7h3V10c0-4-3-7-7-7z"/></svg></div>
+        <div class="swatches">
+          <div class="sw hair-sw picked" data-hair="long" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#6b3410"><circle cx="12" cy="9" r="6"/><path d="M6,9 Q4,16 6,21 L9,21 Q7,14 8,10 Z"/><path d="M18,9 Q20,16 18,21 L15,21 Q17,14 16,10 Z"/></svg></div>
+          <div class="sw hair-sw" data-hair="pigtails" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#6b3410"><circle cx="12" cy="9" r="6"/><ellipse cx="4.5" cy="12" rx="2.5" ry="6"/><ellipse cx="19.5" cy="12" rx="2.5" ry="6"/></svg></div>
+          <div class="sw hair-sw" data-hair="curly" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#6b3410"><circle cx="7" cy="8" r="4"/><circle cx="12" cy="6" r="4.5"/><circle cx="17" cy="8" r="4"/><circle cx="6" cy="14" r="3.5"/><circle cx="18" cy="14" r="3.5"/><circle cx="12" cy="12" r="5"/></svg></div>
+          <div class="sw hair-sw" data-hair="bun" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#6b3410"><circle cx="12" cy="13" r="6"/><circle cx="12" cy="4.5" r="3.5"/></svg></div>
+        </div>
+      </div>
+      <div class="palRow" id="rowHairCol">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ff5fa2"><path d="M12,3 Q18,11 15,16 A5,5 0 0 1 9,16 Q6,11 12,3 Z"/></svg></div>
+        <div class="swatches"></div>
+      </div>
+    </div>
+    <div id="pal-clothes" style="display:none">
+      <div class="palRow" id="rowStyle">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ff2d95"><path d="M9 3l3 2 3-2 2 4-2 2 2 11H7L9 9 7 7z"/></svg></div>
+        <div class="swatches">
+          <div class="sw style-sw picked" data-style="aline" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9,4 L15,4 L18,20 L6,20 Z" fill="#ff2d95"/></svg></div>
+          <div class="sw style-sw" data-style="gown" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9,4 L15,4 L16,9 Q21,19 12,20 Q3,19 8,9 Z" fill="#ff2d95"/></svg></div>
+          <div class="sw style-sw" data-style="party" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M8,4 L16,4 L18,15 Q16.5,17.5 15,15 Q13.5,17.5 12,15 Q10.5,17.5 9,15 Q7.5,17.5 6,15 Z" fill="#ff2d95"/></svg></div>
+          <div class="sw style-sw" data-style="twopiece" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9,3 L15,3 L14.5,9 L9.5,9 Z" fill="#ff2d95"/><path d="M9,12 L15,12 L17,20 L7,20 Z" fill="#ff2d95"/></svg></div>
+        </div>
+      </div>
+      <div class="palRow" id="rowDress">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#8338ec"><path d="M12,3 Q18,11 15,16 A5,5 0 0 1 9,16 Q6,11 12,3 Z"/></svg></div>
+        <div class="swatches"></div>
+      </div>
+      <div class="palRow" id="rowShoe">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ff2d95"><path d="M4,18 L6,9 Q11,4 13,10 L13,14 L20,16 L20,18 Z"/></svg></div>
+        <div class="swatches"></div>
+      </div>
+      <div class="palRow" id="rowAcc">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ffb703"><path d="M4,16 L6,7 L10,13 L12,5 L14,13 L18,7 L20,16 Q12,13 4,16 Z"/></svg></div>
+        <div class="swatches">
+          <div class="sw clear acc-sw picked" data-acc=""></div>
+          <div class="sw acc-sw" data-acc="tiara" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M4,16 L6,7 L10,13 L12,5 L14,13 L18,7 L20,16 Q12,13 4,16 Z" fill="#ffd60a" stroke="#e8b800"/></svg></div>
+          <div class="sw acc-sw" data-acc="bow" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M12,12 Q5,6 4,11 Q3,16 10,14 Q4,20 11,19 Q16,18 12,12 Z" fill="#ff2d95"/><circle cx="12" cy="13" r="2.5" fill="#ffd60a"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="bigBtn" id="runwayBtn">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>
+    TO THE RUNWAY!
+  </button>
+</div>
+
+<!-- ============ RUNWAY ============ -->
+<div class="screen" id="screen-runway">
+  <div id="curtain"></div>
+  <div id="floor"></div>
+  <div id="catwalkEdge"></div>
+  <div id="catwalkTop"></div>
+  <div class="spot" style="left:8%"></div><div class="spot" style="right:8%"></div>
+  <svg id="crowdL" viewBox="0 0 220 70" preserveAspectRatio="none"><g fill="#160d2b"><circle cx="20" cy="26" r="14"/><circle cx="52" cy="20" r="16"/><circle cx="86" cy="27" r="14"/><circle cx="118" cy="19" r="16"/><circle cx="152" cy="26" r="14"/><circle cx="186" cy="21" r="15"/><rect y="30" width="220" height="40"/><path d="M36,26 L42,6" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/><path d="M136,24 L130,5" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/></g><circle cx="42" cy="6" r="4" fill="#ffd60a"/><circle cx="130" cy="5" r="4" fill="#ff5fa2"/></svg>
+  <svg id="crowdR" viewBox="0 0 220 70" preserveAspectRatio="none"><g fill="#160d2b"><circle cx="28" cy="21" r="15"/><circle cx="62" cy="27" r="14"/><circle cx="96" cy="19" r="16"/><circle cx="130" cy="26" r="14"/><circle cx="164" cy="20" r="16"/><circle cx="196" cy="27" r="14"/><rect y="30" width="220" height="40"/><path d="M80,24 L86,4" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/><path d="M178,25 L172,6" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/></g><circle cx="86" cy="4" r="4" fill="#2ec4b6"/><circle cx="172" cy="6" r="4" fill="#ffd60a"/></svg>
+  <div id="walkerName"></div>
+  <div id="walkerBox"><svg viewBox="30 10 160 400"><use id="walkerUse" href="#doll-z"/></svg></div>
+</div>
+
+<!-- ============ JUDGING ============ -->
+<div class="screen" id="screen-results">
+  <div id="bubble">The judges are ready...</div>
+  <div id="judgeGrid">
+    <div></div>
+    <div class="judgeCell"><svg viewBox="10 0 100 130"><use href="#judge-coco"/></svg><div class="judgeName">Coco the Cat</div></div>
+    <div class="judgeCell"><svg viewBox="10 0 100 130"><use href="#judge-pearl"/></svg><div class="judgeName">Grandma Pearl</div></div>
+    <div class="judgeCell"><svg viewBox="10 0 100 130"><use href="#judge-rocky"/></svg><div class="judgeName">Rocky</div></div>
+    <div></div>
+    <div class="rowLabel"><svg viewBox="48 24 124 124"><use href="#doll-z"/></svg>Zoey</div>
+    <div class="card" id="zc0"></div><div class="card" id="zc1"></div><div class="card" id="zc2"></div>
+    <div class="total" id="ztot"></div>
+    <div class="rowLabel"><svg viewBox="48 24 124 124"><use href="#doll-c"/></svg>Robo-Bella</div>
+    <div class="card blue" id="cc0"></div><div class="card blue" id="cc1"></div><div class="card blue" id="cc2"></div>
+    <div class="total" id="ctot"></div>
+  </div>
+  <div id="banner"></div>
+  <button class="bigBtn" id="againBtn">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.65 6.35A8 8 0 1 0 19.73 14h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
+    PLAY AGAIN
+  </button>
+</div>
+
+<div id="confetti"></div>
+
+<script>
+"use strict";
+
+// ---------- state ----------
+const zoey = { lips:null, shadow:null, blush:null, glit:false, style:"aline", dress:null, shoe:null, acc:"", hair:"long", hairc:null };
+const cpu  = { lips:null, shadow:null, blush:null, glit:false, style:"aline", dress:null, shoe:null, acc:"", hair:"long", hairc:null };
+
+const COLORS = {
+  lips:   [["#e63946","red"],["#ff5fa2","pink"],["#e0218a","hot pink"],["#9b5de5","purple"],["#ff7f50","coral"],["#ff9505","orange"],["#ffb703","gold"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#e9ecef","silver"],["#2d2d2d","black"]],
+  shadow: [["#ff9ecb","pink"],["#f72585","hot pink"],["#b388eb","purple"],["#cdb4db","lavender"],["#7fd8ff","blue"],["#2ec4b6","teal"],["#8fe388","green"],["#b5e48c","lime"],["#ffd166","gold"],["#ff9e40","orange"],["#ff4d6d","red"],["#ced4da","silver"],["#212529","black"]],
+  blush:  [["#ff8fa3","pink"],["#ff69b4","hot pink"],["#ffb07c","peach"],["#ff9770","coral"],["#e5989b","rose"],["#f08080","red"],["#c77dff","violet"],["#d4a373","bronze"]]
+};
+const DRESSCOL = [["#ff2d95","pink"],["#f72585","hot pink"],["#8338ec","purple"],["#cdb4db","lavender"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#ffd166","gold"],["#ff9505","orange"],["#e63946","red"],["#f8f9fa","white"],["#212529","black"]];
+const SHOECOL  = [["#ffd60a","gold"],["#ced4da","silver"],["#ff5fa2","pink"],["#9b5de5","purple"],["#3a86ff","blue"],["#e63946","red"],["#f8f9fa","white"],["#212529","black"]];
+const STYLES   = ["aline","gown","party","twopiece"];
+const HAIRCOL  = [["#6b3410","brown"],["#2b2118","black"],["#f4c95d","blonde"],["#c1440e","red"],["#ff5fa2","pink"],["#e0218a","hot pink"],["#8338ec","purple"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#ff9505","orange"],["#ced4da","silver"]];
+const HAIRSTYLES = ["long","pigtails","curly","bun"];
+
+function $(id){ return document.getElementById(id); }
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ---------- sound (WebAudio, made on first tap) ----------
+let AC=null;
+function ac(){ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); return AC; }
+function ding(freq=880){
+  try{ const c=ac(),o=c.createOscillator(),g=c.createGain();
+    o.frequency.value=freq; o.type="sine"; g.gain.setValueAtTime(.3,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);
+    o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.5);
+  }catch(e){}
+}
+function fanfare(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>ding(f),i*160)); }
+function applause(dur=1.4){
+  try{ const c=ac(),len=c.sampleRate*dur,buf=c.createBuffer(1,len,c.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.6);
+    const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+    s.buffer=buf; f.type="bandpass"; f.frequency.value=1200; f.Q.value=.6; g.gain.value=.5;
+    s.connect(f); f.connect(g); g.connect(c.destination); s.start();
+  }catch(e){}
+}
+function beat(times){ // simple catwalk kick while strutting
+  for(let i=0;i<times;i++) setTimeout(()=>{
+    try{ const c=ac(),o=c.createOscillator(),g=c.createGain();
+      o.type="sine"; o.frequency.setValueAtTime(150,c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(45,c.currentTime+.14);
+      g.gain.setValueAtTime(.5,c.currentTime); g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.16);
+      o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+.18);
+    }catch(e){}
+  }, i*420);
+}
+
+// ---------- speech (judges talk out loud) ----------
+// Pick the most natural female English voice installed. Edge's "Natural"
+// neural voices sound the most human; Chrome falls back to Google US English.
+let VOICE=null;
+function pickVoice(){
+  const vs=speechSynthesis.getVoices();
+  VOICE =
+    vs.find(v=>/(aria|jenny|michelle|sonia|natasha|emma|ava).*(natural|online)/i.test(v.name)) ||
+    vs.find(v=>/natural|online/i.test(v.name)&&/^en/i.test(v.lang)&&!/male|guy|davis|andrew|brian|christopher|eric|roger|steffan/i.test(v.name)) ||
+    vs.find(v=>/google us english/i.test(v.name)) ||
+    vs.find(v=>/female|zira|samantha|victoria|karen|moira|tessa/i.test(v.name)&&/^en/i.test(v.lang)) ||
+    vs.find(v=>/^en/i.test(v.lang)) || null;
+}
+try{ speechSynthesis.onvoiceschanged=pickVoice; pickVoice(); }catch(e){}
+function say(text){
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    if(!VOICE) pickVoice();
+    if(VOICE) u.voice=VOICE;
+    u.pitch=1.1; u.rate=1.0;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+// ---------- makeup studio ----------
+function setVar(prefix, part, val){
+  const map={lips:"-lips", shadow:"-shadow", blush:"-blush", dress:"-dress", shoe:"-shoe"};
+  document.documentElement.style.setProperty("--"+prefix+map[part], val||"transparent");
+}
+function setOutfit(p, style){ document.querySelectorAll("."+p+"-outfit").forEach(g=>g.style.display = g.dataset.style===style?"block":"none"); }
+function setAcc(p, acc){ document.querySelectorAll("."+p+"-acc").forEach(g=>g.style.display = g.dataset.acc===acc?"block":"none"); }
+function setHair(p, style){
+  document.querySelectorAll("."+p+"-hairback, ."+p+"-hairfront").forEach(g=>g.style.display = g.dataset.hair===style?"block":"none");
+}
+function buildSwatches(){
+  document.querySelectorAll("#palette .palRow[data-part]").forEach(row=>{
+    const part=row.dataset.part, box=row.querySelector(".swatches");
+    const clear=document.createElement("div");
+    clear.className="sw clear";
+    clear.onclick=()=>{ pick(row,clear); zoey[part]=null; setVar("z",part,null); ding(440); };
+    box.appendChild(clear);
+    COLORS[part].forEach(([hex,name])=>{
+      const sw=document.createElement("div");
+      sw.className="sw"; sw.style.background=hex;
+      sw.onclick=()=>{ pick(row,sw); zoey[part]=[hex,name]; setVar("z",part,hex); ding(700+Math.random()*400); };
+      box.appendChild(sw);
+    });
+  });
+  $("glitBtn").onclick=()=>{
+    zoey.glit=!zoey.glit;
+    $("glitBtn").classList.toggle("picked",zoey.glit);
+    document.documentElement.style.setProperty("--z-glit",zoey.glit?1:0);
+    ding(zoey.glit?1200:500);
+  };
+}
+function pick(row,el){ row.querySelectorAll(".sw").forEach(s=>s.classList.remove("picked")); el.classList.add("picked"); }
+
+function buildClothes(){
+  document.querySelectorAll(".style-sw").forEach(b=>b.onclick=()=>{
+    pick(b.closest(".palRow"),b); zoey.style=b.dataset.style; setOutfit("z",zoey.style); ding(750);
+  });
+  const dbox=document.querySelector("#rowDress .swatches");
+  DRESSCOL.forEach(([hex,name])=>{
+    const sw=document.createElement("div");
+    sw.className="sw"; sw.style.background=hex;
+    sw.onclick=()=>{ pick(sw.closest(".palRow"),sw); zoey.dress=[hex,name]; setVar("z","dress",hex); ding(700+Math.random()*400); };
+    dbox.appendChild(sw);
+  });
+  const sbox=document.querySelector("#rowShoe .swatches");
+  SHOECOL.forEach(([hex,name])=>{
+    const sw=document.createElement("div");
+    sw.className="sw"; sw.style.background=hex;
+    sw.onclick=()=>{ pick(sw.closest(".palRow"),sw); zoey.shoe=[hex,name]; setVar("z","shoe",hex); ding(700+Math.random()*400); };
+    sbox.appendChild(sw);
+  });
+  document.querySelectorAll(".acc-sw").forEach(b=>b.onclick=()=>{
+    pick(b.closest(".palRow"),b); zoey.acc=b.dataset.acc; setAcc("z",zoey.acc); ding(zoey.acc?1100:440);
+  });
+  const TABVIEW = { makeup:["pal-makeup","30 2 160 160"], hair:["pal-hair","22 0 176 205"], clothes:["pal-clothes","15 0 190 415"] };
+  document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on")); t.classList.add("on");
+    for(const k in TABVIEW) $(TABVIEW[k][0]).style.display = k===t.dataset.tab ? "block" : "none";
+    $("studioSvg").setAttribute("viewBox", TABVIEW[t.dataset.tab][1]);
+    ding(700);
+  });
+}
+
+function buildHair(){
+  document.querySelectorAll(".hair-sw").forEach(b=>b.onclick=()=>{
+    pick(b.closest(".palRow"),b); zoey.hair=b.dataset.hair; setHair("z",zoey.hair); ding(780);
+  });
+  const hbox=document.querySelector("#rowHairCol .swatches");
+  HAIRCOL.forEach(([hex,name])=>{
+    const sw=document.createElement("div");
+    sw.className="sw"; sw.style.background=hex;
+    sw.onclick=()=>{ pick(sw.closest(".palRow"),sw); zoey.hairc=[hex,name]; document.documentElement.style.setProperty("--z-hairc",hex); ding(700+Math.random()*400); };
+    hbox.appendChild(sw);
+  });
+}
+
+// ---------- computer rival look ----------
+function cpuStyle(){
+  // 40% of rounds Robo-Bella goes full silly (clashing everything)
+  const silly=Math.random()<.4;
+  cpu.lips  = silly ? [["#8fe388","green"],["#3a86ff","blue"],["#ffd166","yellow"]][ri(0,2)] : rand(COLORS.lips);
+  cpu.shadow= rand(COLORS.shadow);
+  cpu.blush = rand(COLORS.blush);
+  cpu.glit  = Math.random()<.5;
+  cpu.style = rand(STYLES);
+  cpu.dress = silly ? [["#8fe388","green"],["#ff7f50","orange"]][ri(0,1)] : rand(DRESSCOL);
+  cpu.shoe  = rand(SHOECOL);
+  cpu.acc   = rand(["","tiara","bow","earrings"]);
+  cpu.hair  = rand(HAIRSTYLES);
+  cpu.hairc = silly ? [["#8fe388","green"],["#ff7f50","orange"]][ri(0,1)] : rand(HAIRCOL);
+  cpu.silly = silly;
+  setVar("c","lips",cpu.lips[0]); setVar("c","shadow",cpu.shadow[0]); setVar("c","blush",cpu.blush[0]);
+  setVar("c","dress",cpu.dress[0]); setVar("c","shoe",cpu.shoe[0]);
+  setOutfit("c",cpu.style); setAcc("c",cpu.acc); setHair("c",cpu.hair);
+  document.documentElement.style.setProperty("--c-hairc",cpu.hairc[0]);
+  document.documentElement.style.setProperty("--c-glit",cpu.glit?1:0);
+}
+
+// ---------- runway sequence ----------
+function flashes(n){                       // paparazzi camera flashes from the crowd
+  const scr=$("screen-runway");
+  for(let i=0;i<n;i++) setTimeout(()=>{
+    if(!scr.classList.contains("on")) return;
+    const f=document.createElement("div");
+    f.className="flash";
+    f.style.left=(4+Math.random()*18 + (Math.random()<.5?0:74))+"%";
+    f.style.bottom=(2+Math.random()*20)+"%";
+    scr.appendChild(f);
+    setTimeout(()=>f.remove(),520);
+  }, i*420+Math.random()*220);
+}
+async function runway(){
+  show("screen-runway");
+  cpuStyle();
+  await walkDoll("#doll-z","Zoey");
+  await walkDoll("#doll-c","Robo-Bella");
+  results();
+}
+async function walkDoll(href,name){
+  const box=$("walkerBox");
+  $("walkerName").textContent=name;
+  $("walkerUse").setAttribute("href",href);
+  box.classList.add("snap");                     // jump to the back of the catwalk instantly
+  box.classList.remove("near","pose","strut","visible");
+  void box.offsetWidth;
+  box.classList.remove("snap");
+  box.classList.add("visible","strut");
+  beat(8); flashes(9); box.classList.add("near");            // walk toward the camera, growing bigger
+  await wait(3400);
+  box.classList.remove("strut"); box.classList.add("pose");   // strike a pose up front
+  applause(); flashes(5); if(name==="Zoey") say("Go Zoey, go!");
+  await wait(1700);
+  box.classList.remove("pose"); box.classList.add("strut");
+  beat(6); flashes(6); box.classList.remove("near");         // turn and walk back, shrinking away
+  await wait(2400);
+  box.classList.remove("strut","visible");
+  await wait(350);
+}
+
+// ---------- judging ----------
+// ponytail: rigged scoring on purpose — Zoey wins ~78% and never scores under 7. She's five.
+function makeScores(){
+  const zoeyWins=Math.random()<.78;
+  const z=[ri(7,10),ri(7,10),ri(8,10)];
+  let c;
+  if(zoeyWins){ c=z.map(s=>Math.max(2,s-ri(1,4))); }
+  else{ c=z.map(s=>Math.min(10,s+1)); c[0]=Math.min(10,c[0]+1); } // close loss, never a blowout
+  return {z,c,zoeyWins};
+}
+function compliments(){
+  const pool=[];
+  if(zoey.lips)   pool.push("I LOVE the "+zoey.lips[1]+" lips!");
+  if(zoey.shadow) pool.push("That "+zoey.shadow[1]+" eyeshadow sparkles!");
+  if(zoey.blush)  pool.push("Gorgeous "+zoey.blush[1]+" cheeks!");
+  if(zoey.dress)  pool.push("That "+zoey.dress[1]+" dress is STUNNING!");
+  if(zoey.shoe)   pool.push("Those "+zoey.shoe[1]+" shoes! Where can I get them?");
+  if(zoey.acc==="tiara") pool.push("A tiara! A true princess!");
+  if(zoey.acc==="bow")   pool.push("That bow is adorable!");
+  if(zoey.acc==="earrings") pool.push("Those gold hoops! Gorgeous!");
+  if(zoey.hairc) pool.push("The "+zoey.hairc[1]+" hair is EVERYTHING!");
+  const hairLines={pigtails:"Pigtails! Adorable!",curly:"Those curls! Iconic!",bun:"That bun is pure elegance!"};
+  if(hairLines[zoey.hair]) pool.push(hairLines[zoey.hair]);
+  if(zoey.glit)   pool.push("SO much glitter. Fabulous!");
+  while(pool.length<3) pool.push(rand(["Such natural beauty, darling!","What a superstar smile!","The walk! The confidence! Wow!"]));
+  return pool.sort(()=>Math.random()-.5).slice(0,3);
+}
+const CPU_LINES=[
+  "Hmm... interesting choice, Robo-Bella.",
+  "Did a clown help you today, Bella?",
+  "Beep boop... needs more practice!",
+  "Oh my. Bold. Very bold.",
+];
+async function results(){
+  show("screen-results");
+  ["zc0","zc1","zc2","cc0","cc1","cc2"].forEach(id=>{ $(id).classList.remove("flip"); $(id).textContent=""; });
+  $("ztot").classList.remove("show"); $("ctot").classList.remove("show");
+  $("banner").classList.remove("show"); $("againBtn").style.visibility="hidden";
+  $("bubble").textContent="The judges are ready...";
+  say("Judges, what do we think of Zoey?");
+  await wait(1800);
+
+  const {z,c,zoeyWins}=makeScores();
+  const nice=compliments();
+  for(let i=0;i<3;i++){
+    $("bubble").textContent=nice[i]; say(nice[i]);
+    $("zc"+i).textContent=z[i]; $("zc"+i).classList.add("flip"); ding(900+i*150);
+    await wait(2100);
+  }
+  $("ztot").textContent=z[0]+z[1]+z[2]; $("ztot").classList.add("show"); applause(1);
+  await wait(1400);
+
+  const cline=cpu.silly?CPU_LINES[ri(0,3)]:"Not bad, Robo-Bella... not bad.";
+  $("bubble").textContent=cline; say(cline);
+  for(let i=0;i<3;i++){ $("cc"+i).textContent=c[i]; $("cc"+i).classList.add("flip"); ding(500+i*100); await wait(700); }
+  $("ctot").textContent=c[0]+c[1]+c[2]; $("ctot").classList.add("show");
+  await wait(1200);
+
+  if(zoeyWins){
+    $("banner").textContent="ZOEY WINS!";
+    $("banner").classList.add("show");
+    fanfare(); applause(2.4); confetti();
+    say("Zoey wins! What a superstar!");
+  }else{
+    $("banner").textContent="Sooo close!";
+    $("banner").classList.add("show");
+    say("Ooh, so close! One more walk, Zoey!");
+  }
+  $("againBtn").style.visibility="visible";
+}
+
+// ---------- confetti ----------
+function confetti(){
+  const layer=$("confetti"), colors=["#ff2d95","#ffd60a","#3a86ff","#8fe388","#9b5de5","#ff7f50"];
+  for(let i=0;i<90;i++){
+    const p=document.createElement("div");
+    p.className="conf";
+    p.style.left=Math.random()*100+"vw";
+    p.style.background=rand(colors);
+    p.style.animationDuration=(2.2+Math.random()*2)+"s";
+    p.style.animationDelay=(Math.random()*1.2)+"s";
+    layer.appendChild(p);
+  }
+  setTimeout(()=>layer.innerHTML="",5000);
+}
+
+// ---------- wiring ----------
+$("startBtn").onclick=()=>{ ac(); ding(880); say("Welcome to Zoey's Runway!"); show("screen-studio"); };
+$("runwayBtn").onclick=()=>{ ding(1000); runway(); };
+$("againBtn").onclick=()=>{ ding(880); show("screen-studio"); };  // keeps her look so she can tweak it
+buildSwatches();
+buildClothes();
+buildHair();
+</script>
+</body>
+</html>
