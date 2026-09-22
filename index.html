@@ -52,7 +52,20 @@
   #clearAllBtn { display:flex; align-items:center; gap:6px; border:none; cursor:pointer; font-family:inherit; font-weight:bold; color:#fff; background:#e63946; border-radius:30px; padding:8px 14px; font-size:clamp(12px,2.6vw,16px); box-shadow:0 3px 8px rgba(0,0,0,.2); }
   #clearAllBtn:active { transform:scale(.94); }
   #faceWrap { flex:1 1 auto; min-height:0; display:flex; align-items:center; justify-content:center; width:100%; }
-  #faceWrap svg { height:100%; max-height:44vh; width:auto; filter:drop-shadow(0 10px 16px rgba(131,56,236,.25)); animation:idle 3.6s ease-in-out infinite; }
+  #studioDoll { filter:drop-shadow(0 10px 16px rgba(131,56,236,.25)); animation:idle 3.6s ease-in-out infinite; }
+  .dollSlot { position:relative; overflow:hidden; }
+  .dollSlot .dollScale { position:relative; height:100%; aspect-ratio:832/1248; }
+  .dollSlot img.layer, .dollSlot svg.layer { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .dollSlot img.layer { object-fit:fill; }
+  .dollSlot.full { width:100%; height:100%; display:flex; align-items:flex-end; justify-content:center; }
+  .dollSlot.face { width:min(92vw,440px); height:100%; margin:0 auto; }
+  .dollSlot.face .dollScale, .dollSlot.face.zoom-face .dollScale { position:absolute; height:175%; left:50%; top:0; transform:translateX(-50%); }
+  .dollSlot.face.zoom-head .dollScale { height:150%; top:0; }
+  .dollSlot.face.zoom-full .dollScale { height:100%; top:0; }
+  .rowLabel .dollSlot { width:clamp(44px,8vw,68px); height:clamp(44px,8vw,68px); border-radius:50%; background:#fff; box-shadow:0 3px 8px rgba(0,0,0,.15); }
+  .rowLabel .dollSlot.face .dollScale { height:280%; top:-10%; }
+  #magDoll { flex:1; width:70%; min-height:0; margin-top:4px; }
+  .mk { position:absolute; pointer-events:none; border-radius:50%; }
   @keyframes idle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
   #palette { width:100%; max-width:820px; max-height:46vh; overflow-y:auto; background:rgba(255,255,255,.75); border-radius:26px; padding:12px 14px; box-shadow:0 8px 22px rgba(131,56,236,.18); }
   .palRow { display:flex; align-items:center; gap:8px; padding:6px 0; }
@@ -82,6 +95,9 @@
   /* venue looks */
   .v-mall #curtain { background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.15)),repeating-linear-gradient(90deg,#bfe3ff 0 46px,#e6f4ff 46px 92px); border-bottom-color:#8ecae6; }
   .v-mall #floor { background:linear-gradient(180deg,#cdb4db,#8e7cc3); }
+  .v-city #curtain { background:linear-gradient(180deg,#d7ecff 40%,#8ecae6); border-bottom-color:#ffd60a; }
+  .v-city #floor { background:linear-gradient(180deg,#6a4c93,#3d2a66); }
+  .v-city #catwalkTop { background:linear-gradient(180deg,#ffd166 0%,#ff8fab 70%,#ff5fa2 100%); }
   .v-tv #curtain { background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.4)),repeating-linear-gradient(90deg,#f72585 0 30px,#7209b7 30px 60px,#4cc9f0 60px 90px); border-bottom-color:#4cc9f0; }
   .v-tv #floor { background:linear-gradient(180deg,#240046,#10002b); }
   .v-tv #catwalkTop { background:linear-gradient(180deg,#4cc9f0 0%,#7209b7 60%,#f72585 100%); }
@@ -191,286 +207,389 @@
       <circle cx="20" cy="19" r="1.3" fill="#fff" opacity=".9"/>
       <circle cx="4" cy="20" r="1" fill="#fff" opacity=".7"/>
     </pattern>
+    <pattern id="pat-hearts" width="28" height="26" patternUnits="userSpaceOnUse">
+      <path d="M14,22 C6,16 4,10 8,8 C11,6 14,9 14,11 C14,9 17,6 20,8 C24,10 22,16 14,22 Z" fill="#fff" opacity=".75"/>
+    </pattern>
+    <pattern id="pat-flowers" width="32" height="32" patternUnits="userSpaceOnUse">
+      <g fill="#fff" opacity=".75">
+        <circle cx="16" cy="10" r="3.4"/><circle cx="11" cy="14" r="3.4"/><circle cx="21" cy="14" r="3.4"/>
+        <circle cx="13" cy="19" r="3.4"/><circle cx="19" cy="19" r="3.4"/>
+      </g>
+      <circle cx="16" cy="15" r="2.3" fill="#ffd60a"/>
+    </pattern>
 
     <!-- ===== THE DOLL (instance look = CSS vars on the <use>) ===== -->
     <g id="doll">
-      <!-- fairy wings (behind everything) -->
       <g style="display:var(--d-acc-wings,none)">
-        <path d="M84,190 Q30,150 26,200 Q24,244 82,232 Z" fill="url(#wingGrad)" stroke="rgba(131,56,236,.5)" stroke-width="2"/>
-        <path d="M136,190 Q190,150 194,200 Q196,244 138,232 Z" fill="url(#wingGrad)" stroke="rgba(131,56,236,.5)" stroke-width="2"/>
-        <circle cx="52" cy="196" r="4" fill="#ff5fa2" opacity=".7"/><circle cx="168" cy="196" r="4" fill="#ff5fa2" opacity=".7"/>
+        <path d="M78,200 Q18,140 22,210 Q28,270 86,246 Z" fill="url(#wingGrad)" stroke="#7c4dff" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M142,200 Q202,140 198,210 Q192,270 134,246 Z" fill="url(#wingGrad)" stroke="#7c4dff" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="48" cy="196" r="5" fill="#ff5fa2"/><circle cx="172" cy="196" r="5" fill="#ff5fa2"/>
       </g>
-      <!-- hair back -->
+      <g style="display:var(--d-fit-hoodie,none)">
+        <path fill-rule="evenodd" d="M18,140 C8,28 58,-8 110,-4 C162,-8 212,28 202,140 C184,188 110,198 18,140 Z M62,118 C52,48 78,22 110,22 C142,22 168,48 158,118 C146,150 110,160 62,118 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+      </g>
+      <g style="display:var(--d-fit-cape,none)">
+        <path d="M70,196 Q8,250 24,360 Q110,400 196,360 Q212,250 150,196 Q110,230 70,196 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M70,196 Q8,250 24,360 Q110,400 196,360 Q212,250 150,196 Q110,230 70,196 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M40,250 Q28,310 40,358" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M180,250 Q192,310 180,358" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+      </g>
+
       <g style="display:var(--d-hair-long,none)">
-        <path d="M62,60 Q40,120 58,210 Q66,258 88,262 L88,180 Q70,130 78,92 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M158,60 Q180,120 162,210 Q154,258 132,262 L132,180 Q150,130 142,92 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M70,95 Q62,150 70,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <path d="M150,95 Q158,150 150,215" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M58,100 Q28,160 48,250 Q62,290 86,286 L90,180 Q70,140 78,108 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5" stroke-linejoin="round"/>
+        <path d="M162,100 Q192,160 172,250 Q158,290 134,286 L130,180 Q150,140 142,108 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5" stroke-linejoin="round"/>
       </g>
       <g style="display:var(--d-hair-pigtails,none)">
-        <ellipse cx="46" cy="118" rx="17" ry="44" fill="var(--d-hairc,#7a4a21)"/>
-        <ellipse cx="174" cy="118" rx="17" ry="44" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M42,90 Q36,125 44,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <path d="M178,90 Q184,125 176,158" stroke="rgba(255,255,255,.22)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-        <circle cx="54" cy="78" r="7" fill="#ff2d95"/><circle cx="166" cy="78" r="7" fill="#ff2d95"/>
+        <ellipse cx="40" cy="130" rx="20" ry="52" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <ellipse cx="180" cy="130" rx="20" ry="52" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <circle cx="48" cy="78" r="8" fill="#ff2d95" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="172" cy="78" r="8" fill="#ff2d95" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-hair-curly,none)">
-        <circle cx="54" cy="98" r="18" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="48" cy="134" r="16" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="56" cy="170" r="15" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="70" cy="198" r="13" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="166" cy="98" r="18" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="172" cy="134" r="16" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="164" cy="170" r="15" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="150" cy="198" r="13" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="50" cy="93" r="5" fill="rgba(255,255,255,.25)"/>
-        <circle cx="170" cy="129" r="4" fill="rgba(255,255,255,.25)"/>
+        <circle cx="48" cy="108" r="20" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="42" cy="146" r="18" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="52" cy="182" r="16" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="172" cy="108" r="20" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="178" cy="146" r="18" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="168" cy="182" r="16" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
       </g>
       <g style="display:var(--d-hair-bun,none)">
-        <circle cx="110" cy="24" r="21" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="103" cy="17" r="6" fill="rgba(255,255,255,.25)"/>
-        <path d="M92,26 Q110,38 128,26" stroke="#ffd60a" stroke-width="4" fill="none"/>
+        <circle cx="110" cy="22" r="24" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <circle cx="102" cy="14" r="6" fill="rgba(255,255,255,.35)"/>
       </g>
       <g style="display:var(--d-hair-braid,none)">
-        <circle cx="168" cy="106" r="14" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="170" cy="132" r="13" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="168" cy="157" r="12" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="164" cy="180" r="11" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="160" cy="201" r="9" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M154,212 L166,212 L160,224 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="160" cy="214" r="4.5" fill="#ff2d95"/>
-        <circle cx="164" cy="101" r="4" fill="rgba(255,255,255,.25)"/>
-        <circle cx="165" cy="152" r="3.5" fill="rgba(255,255,255,.25)"/>
+        <circle cx="172" cy="112" r="15" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="174" cy="140" r="14" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="170" cy="166" r="13" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="164" cy="190" r="12" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="160" cy="198" r="6" fill="#ff2d95" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-hair-pony,none)">
-        <path d="M126,22 Q172,28 170,92 Q168,152 148,204 Q158,120 138,58 Q132,36 126,22 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M158,70 Q162,130 150,180" stroke="rgba(255,255,255,.22)" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <circle cx="130" cy="30" r="8" fill="#ff2d95"/>
+        <path d="M128,28 Q186,40 176,120 Q168,190 146,220 Q162,120 140,60 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="132" cy="36" r="9" fill="#ff2d95" stroke="#6b3a2a" stroke-width="2"/>
       </g>
-      <!-- ears / head -->
-      <ellipse cx="58" cy="98" rx="7" ry="11" fill="var(--d-skin,#f2c19a)"/>
-      <ellipse cx="162" cy="98" rx="7" ry="11" fill="var(--d-skin,#f2c19a)"/>
-      <ellipse cx="110" cy="90" rx="52" ry="57" fill="var(--d-skin,#f2c19a)"/>
-      <ellipse cx="110" cy="90" rx="52" ry="57" fill="url(#shade)"/>
-      <!-- hair front -->
+      <g style="display:var(--d-hair-bob,none)">
+        <path d="M48,120 Q40,160 70,168 Q110,178 150,168 Q180,160 172,120 Q160,145 110,150 Q60,145 48,120 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+      </g>
+      <g style="display:var(--d-hair-spacebuns,none)">
+        <circle cx="58" cy="40" r="24" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <circle cx="162" cy="40" r="24" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <circle cx="50" cy="32" r="6" fill="rgba(255,255,255,.35)"/>
+        <circle cx="154" cy="32" r="6" fill="rgba(255,255,255,.35)"/>
+      </g>
+
+      <ellipse cx="52" cy="104" rx="11" ry="15" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="3"/>
+      <ellipse cx="168" cy="104" rx="11" ry="15" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="3"/>
+      <circle cx="110" cy="98" r="58" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4"/>
+      <ellipse cx="110" cy="112" rx="40" ry="28" fill="rgba(255,255,255,.18)"/>
+      <path d="M98,148 Q110,142 122,148 L126,176 Q110,186 94,176 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="3.5" stroke-linejoin="round"/>
+
       <g style="display:var(--d-hair-long,none)">
-        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M56,74 Q52,130 62,185 Q72,155 68,115 Q60,96 56,74 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M164,74 Q168,130 158,185 Q148,155 152,115 Q160,96 164,74 Z" fill="var(--d-hairc,#7a4a21)"/>
+        <path d="M54,96 Q52,36 110,30 Q168,36 166,96 Q150,62 128,64 Q110,48 92,64 Q70,62 54,96 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5" stroke-linejoin="round"/>
+        <path d="M50,92 Q40,140 58,190 Q72,150 66,112 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M170,92 Q180,140 162,190 Q148,150 154,112 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
       </g>
       <g style="display:var(--d-hair-pigtails,none)">
-        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--d-hairc,#7a4a21)"/>
+        <path d="M54,96 Q52,36 110,30 Q168,36 166,96 Q148,64 110,66 Q72,64 54,96 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
       </g>
       <g style="display:var(--d-hair-curly,none)">
-        <circle cx="68" cy="46" r="13" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="90" cy="36" r="14" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="112" cy="32" r="14" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="134" cy="36" r="14" fill="var(--d-hairc,#7a4a21)"/>
-        <circle cx="154" cy="46" r="13" fill="var(--d-hairc,#7a4a21)"/>
+        <circle cx="64" cy="52" r="15" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="88" cy="40" r="16" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="110" cy="36" r="16" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="132" cy="40" r="16" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <circle cx="156" cy="52" r="15" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
       </g>
       <g style="display:var(--d-hair-bun,none)">
-        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q144,42 112,44 Q76,42 58,80 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M110,26 L110,44" stroke="rgba(0,0,0,.25)" stroke-width="2"/>
+        <path d="M56,100 Q58,40 110,34 Q162,40 164,100 Q144,58 110,60 Q76,58 56,100 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
       </g>
       <g style="display:var(--d-hair-braid,none)">
-        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q150,52 128,54 Q116,42 96,54 Q70,52 58,80 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M56,74 Q52,130 62,185 Q72,155 68,115 Q60,96 56,74 Z" fill="var(--d-hairc,#7a4a21)"/>
+        <path d="M54,96 Q52,36 110,30 Q168,36 166,96 Q150,62 128,64 Q110,48 92,64 Q70,62 54,96 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M50,92 Q42,140 58,188 Q72,150 66,112 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
       </g>
       <g style="display:var(--d-hair-pony,none)">
-        <path d="M58,80 Q60,26 110,24 Q160,26 162,80 Q144,42 112,44 Q76,42 58,80 Z" fill="var(--d-hairc,#7a4a21)"/>
-        <path d="M66,52 Q90,40 120,42" stroke="rgba(0,0,0,.18)" stroke-width="2" fill="none"/>
+        <path d="M56,100 Q58,40 110,34 Q162,40 164,100 Q144,58 110,62 Q76,58 56,100 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
       </g>
-      <!-- sun streaks (Zoey's summer highlights) -->
-      <g stroke="#ffe0a3" stroke-width="4" fill="none" stroke-linecap="round" opacity="var(--d-streak,0)">
-        <path d="M72,52 Q92,38 112,36"/>
-        <path d="M122,38 Q142,42 152,58"/>
-        <path d="M62,72 Q64,52 80,42"/>
+      <g style="display:var(--d-hair-bob,none)">
+        <path d="M50,108 Q48,40 110,32 Q172,40 170,108 Q156,78 132,72 Q110,60 88,72 Q64,78 50,108 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M48,100 Q36,140 54,158 Q66,130 62,108 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M172,100 Q184,140 166,158 Q154,130 158,108 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3"/>
       </g>
-      <!-- eyeshadow + lids -->
-      <ellipse cx="86" cy="82" rx="19" ry="10" fill="var(--d-shadow,transparent)" opacity=".8"/>
-      <ellipse cx="134" cy="82" rx="19" ry="10" fill="var(--d-shadow,transparent)" opacity=".8"/>
-      <path d="M70,79 Q86,70 102,79" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>
-      <path d="M118,79 Q134,70 150,79" stroke="rgba(0,0,0,.12)" stroke-width="2" fill="none"/>
-      <!-- eyes -->
-      <ellipse cx="86" cy="93" rx="16" ry="11" fill="#fff"/>
-      <ellipse cx="134" cy="93" rx="16" ry="11" fill="#fff"/>
-      <circle cx="86" cy="93" r="8.5" fill="var(--d-iris,#6b4423)"/><circle cx="134" cy="93" r="8.5" fill="var(--d-iris,#6b4423)"/>
-      <circle cx="86" cy="93" r="8.5" fill="none" stroke="rgba(20,8,43,.45)" stroke-width="1.4"/><circle cx="134" cy="93" r="8.5" fill="none" stroke="rgba(20,8,43,.45)" stroke-width="1.4"/>
-      <circle cx="86" cy="93" r="4" fill="#14082b"/><circle cx="134" cy="93" r="4" fill="#14082b"/>
-      <circle cx="89" cy="90" r="2.2" fill="#fff"/><circle cx="137" cy="90" r="2.2" fill="#fff"/>
-      <circle cx="83" cy="96" r="1.2" fill="#fff" opacity=".8"/><circle cx="131" cy="96" r="1.2" fill="#fff" opacity=".8"/>
-      <path d="M70,88 Q86,75 102,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <path d="M118,88 Q134,75 150,88" stroke="#14082b" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-      <path d="M70,99 Q86,105 102,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-      <path d="M118,99 Q134,105 150,99" stroke="rgba(20,8,43,.35)" stroke-width="1.6" fill="none" stroke-linecap="round"/>
-      <path d="M68,90 L60,83 M71,86 L64,78 M75,83 L70,75 M148,86 L155,78 M152,90 L160,83 M145,83 L150,75" stroke="#14082b" stroke-width="2.5" stroke-linecap="round"/>
-      <!-- extra glam lashes -->
-      <g stroke="#14082b" stroke-width="2.5" stroke-linecap="round" opacity="var(--d-lash,0)">
-        <path d="M79,80 L76,72 M86,78 L85,70 M93,80 L96,72"/>
-        <path d="M127,80 L124,72 M134,78 L135,70 M141,80 L144,72"/>
+      <g style="display:var(--d-hair-spacebuns,none)">
+        <path d="M56,100 Q58,44 110,38 Q162,44 164,100 Q144,66 110,68 Q76,66 56,100 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <circle cx="58" cy="40" r="8" fill="#ff5fa2" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="162" cy="40" r="8" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
       </g>
-      <path d="M70,70 Q86,62 100,68" stroke="#4a2511" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-      <path d="M120,68 Q134,62 150,70" stroke="#4a2511" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-      <!-- freckles -->
-      <g fill="#b5713f" opacity="var(--d-frk,0)">
-        <circle cx="73" cy="110" r="1.7"/><circle cx="80" cy="114" r="1.5"/><circle cx="88" cy="110" r="1.4"/>
-        <circle cx="132" cy="110" r="1.4"/><circle cx="140" cy="114" r="1.5"/><circle cx="147" cy="110" r="1.7"/>
-        <circle cx="104" cy="112" r="1.3"/><circle cx="116" cy="112" r="1.3"/>
+      <g stroke="#ffe0a3" stroke-width="5" fill="none" stroke-linecap="round" opacity="var(--d-streak,0)">
+        <path d="M74,58 Q98,42 120,44"/><path d="M128,46 Q148,54 156,70"/>
       </g>
-      <!-- blush / nose -->
-      <ellipse cx="72" cy="116" rx="11" ry="7" fill="var(--d-blush,transparent)" opacity=".65"/>
-      <ellipse cx="148" cy="116" rx="11" ry="7" fill="var(--d-blush,transparent)" opacity=".65"/>
-      <path d="M108,108 Q112,114 108,118" stroke="rgba(120,60,20,.55)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <!-- lips -->
-      <path d="M92,132 Q99,124 106,130 Q110,133 114,130 Q121,124 128,132 Q121,146 110,146 Q99,146 92,132 Z" fill="var(--d-lips,#e8a0a8)"/>
-      <path d="M96,133 Q110,138 124,133" stroke="rgba(0,0,0,.18)" stroke-width="1.5" fill="none"/>
-      <ellipse cx="103" cy="140" rx="6" ry="2.4" fill="rgba(255,255,255,.35)"/>
-      <!-- face gems -->
+
+      <ellipse cx="82" cy="92" rx="22" ry="12" fill="var(--d-shadow,transparent)" opacity=".85"/>
+      <ellipse cx="138" cy="92" rx="22" ry="12" fill="var(--d-shadow,transparent)" opacity=".85"/>
+      <ellipse cx="82" cy="104" rx="20" ry="18" fill="#fff" stroke="#6b3a2a" stroke-width="3"/>
+      <ellipse cx="138" cy="104" rx="20" ry="18" fill="#fff" stroke="#6b3a2a" stroke-width="3"/>
+      <circle cx="84" cy="106" r="11" fill="var(--d-iris,#6b4423)"/>
+      <circle cx="140" cy="106" r="11" fill="var(--d-iris,#6b4423)"/>
+      <circle cx="84" cy="107" r="6" fill="#1a1024"/>
+      <circle cx="140" cy="107" r="6" fill="#1a1024"/>
+      <circle cx="89" cy="101" r="3.4" fill="#fff"/>
+      <circle cx="145" cy="101" r="3.4" fill="#fff"/>
+      <circle cx="80" cy="110" r="1.6" fill="#fff" opacity=".8"/>
+      <circle cx="136" cy="110" r="1.6" fill="#fff" opacity=".8"/>
+      <path d="M62,98 Q82,82 100,96" stroke="#6b3a2a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M120,96 Q138,82 158,98" stroke="#6b3a2a" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <g stroke="#1a1024" stroke-width="3" stroke-linecap="round" opacity="var(--d-lash,0)">
+        <path d="M66,96 L60,86 M74,90 L72,80 M84,88 L86,78 M94,92 L100,84"/>
+        <path d="M126,92 L120,84 M134,88 L136,78 M146,90 L148,80 M154,96 L160,86"/>
+      </g>
+      <g stroke="#1a1024" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="var(--d-wing,0)">
+        <path d="M60,100 Q48,86 64,82"/><path d="M160,100 Q172,86 156,82"/>
+      </g>
+      <path d="M66,78 Q82,68 100,76" stroke="#4a2511" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M120,76 Q138,68 154,78" stroke="#4a2511" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <g fill="#c47a45" opacity="var(--d-frk,0)">
+        <circle cx="66" cy="122" r="2"/><circle cx="74" cy="128" r="1.7"/><circle cx="84" cy="122" r="1.6"/>
+        <circle cx="136" cy="122" r="1.6"/><circle cx="146" cy="128" r="1.7"/><circle cx="154" cy="122" r="2"/>
+      </g>
+      <ellipse cx="64" cy="126" rx="13" ry="8" fill="var(--d-blush,#ff8fa3)" opacity=".55"/>
+      <ellipse cx="156" cy="126" rx="13" ry="8" fill="var(--d-blush,#ff8fa3)" opacity=".55"/>
+      <ellipse cx="110" cy="124" rx="5" ry="3.5" fill="rgba(180,90,70,.35)"/>
+      <path d="M98,144 Q110,158 122,144" stroke="#c45b6a" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M92,138 Q110,162 128,138 Q118,154 110,156 Q102,154 92,138 Z" fill="var(--d-lips,transparent)"/>
+      <ellipse cx="104" cy="148" rx="7" ry="3" fill="#fff" opacity="var(--d-lipshine,0)"/>
+      <g fill="#ff2d95" stroke="#6b3a2a" stroke-width="1.5" opacity="var(--d-hearts,0)">
+        <path d="M52,124 c-8,-10 0,-16 8,-10 c8,-6 14,0 8,10 c-3,4 -8,8 -8,8 c0,0 -5,-4 -8,-8 Z"/>
+        <path d="M152,124 c-8,-10 0,-16 8,-10 c8,-6 14,0 8,10 c-3,4 -8,8 -8,8 c0,0 -5,-4 -8,-8 Z"/>
+      </g>
+      <g fill="#ffd60a" stroke="#e0a800" stroke-width="1.2" opacity="var(--d-stickers,0)">
+        <path d="M58,112 l3,6.2 6.6,.8 -4.8,4.6 1.2,6.6 -6,-3.4 -6,3.4 1.2,-6.6 -4.8,-4.6 6.6,-.8 Z"/>
+        <path d="M156,108 l3,6.2 6.6,.8 -4.8,4.6 1.2,6.6 -6,-3.4 -6,3.4 1.2,-6.6 -4.8,-4.6 6.6,-.8 Z"/>
+      </g>
       <g opacity="var(--d-gem,0)">
-        <path d="M110,56 l4,5 -4,5 -4,-5 Z" fill="url(#gemGrad)"/>
-        <path d="M66,102 l3,4 -3,4 -3,-4 Z" fill="url(#gemGrad)"/>
-        <path d="M154,102 l3,4 -3,4 -3,-4 Z" fill="url(#gemGrad)"/>
+        <path d="M110,62 l5,6 -5,6 -5,-6 Z" fill="url(#gemGrad)" stroke="#3a86ff" stroke-width="1"/>
+        <path d="M62,112 l4,5 -4,5 -4,-5 Z" fill="url(#gemGrad)" stroke="#3a86ff" stroke-width="1"/>
+        <path d="M158,112 l4,5 -4,5 -4,-5 Z" fill="url(#gemGrad)" stroke="#3a86ff" stroke-width="1"/>
       </g>
-      <!-- glitter -->
       <g fill="url(#glitGrad)" opacity="var(--d-glit,0)">
-        <path d="M72,74 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/><path d="M146,72 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2 Z"/>
-        <path d="M98,120 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/><path d="M126,122 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
-        <path d="M110,64 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+        <path d="M70,78 l2.2,5.5 5.5,2.2 -5.5,2.2 -2.2,5.5 -2.2,-5.5 -5.5,-2.2 5.5,-2.2 Z"/>
+        <path d="M150,76 l2.2,5.5 5.5,2.2 -5.5,2.2 -2.2,5.5 -2.2,-5.5 -5.5,-2.2 5.5,-2.2 Z"/>
+        <path d="M110,70 l1.6,4 4,1.6 -4,1.6 -1.6,4 -1.6,-4 -4,-1.6 4,-1.6 Z"/>
       </g>
-      <!-- body -->
-      <rect x="101" y="144" width="18" height="34" fill="var(--d-skin,#f2c19a)"/>
-      <path d="M88,172 L132,172 L130,242 L90,242 Z" fill="var(--d-skin,#f2c19a)"/>
-      <rect x="94" y="240" width="10" height="148" rx="5" fill="var(--d-skin,#f2c19a)"/>
-      <rect x="116" y="240" width="10" height="148" rx="5" fill="var(--d-skin,#f2c19a)"/>
-      <path d="M84,180 Q64,220 70,254" stroke="var(--d-skin,#f2c19a)" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <path d="M136,180 Q156,220 150,254" stroke="var(--d-skin,#f2c19a)" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <!-- hands + painted nails -->
-      <circle cx="70" cy="260" r="8" fill="var(--d-skin,#f2c19a)"/>
-      <circle cx="150" cy="260" r="8" fill="var(--d-skin,#f2c19a)"/>
+
+      <path d="M76,196 C66,168 92,156 110,156 C128,156 154,168 144,196 C160,240 142,272 120,280 C112,286 108,286 100,280 C78,272 60,240 76,196 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M86,268 C72,274 66,314 74,352 C80,378 90,392 102,390 C114,388 118,370 112,340 C106,304 106,284 102,272 C98,264 90,264 86,268 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M134,268 C148,274 154,314 146,352 C140,378 130,392 118,390 C106,388 102,370 108,340 C114,304 114,284 118,272 C122,264 130,264 134,268 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M62,198 C46,214 34,258 40,304 C46,322 66,320 70,302 C76,260 78,220 84,198 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M158,198 C174,214 186,258 180,304 C174,322 154,320 150,302 C144,260 142,220 136,198 Z" fill="var(--d-skin,#f2c19a)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
       <g fill="var(--d-nails,transparent)">
-        <circle cx="65" cy="265" r="1.8"/><circle cx="69" cy="268" r="1.8"/><circle cx="74" cy="267" r="1.8"/>
-        <circle cx="146" cy="267" r="1.8"/><circle cx="151" cy="268" r="1.8"/><circle cx="155" cy="265" r="1.8"/>
+        <ellipse cx="42" cy="308" rx="3" ry="4"/><ellipse cx="50" cy="316" rx="3" ry="4"/><ellipse cx="58" cy="308" rx="3" ry="4"/>
+        <ellipse cx="162" cy="308" rx="3" ry="4"/><ellipse cx="170" cy="316" rx="3" ry="4"/><ellipse cx="178" cy="308" rx="3" ry="4"/>
       </g>
-      <!-- outfits (each shape doubled: color fill + pattern overlay) -->
+
       <g style="display:var(--d-fit-aline,none)">
-        <path d="M84,176 L136,176 L150,300 Q110,316 70,300 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M84,176 L136,176 L150,300 Q110,316 70,300 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
-        <circle cx="110" cy="188" r="5" fill="#ffd60a"/>
+        <path d="M80,188 Q110,172 140,188 Q158,230 168,300 Q110,340 52,300 Q62,230 80,188 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M80,188 Q110,172 140,188 Q158,230 168,300 Q110,340 52,300 Q62,230 80,188 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M64,196 Q46,214 56,242 Q74,220 82,202 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M156,196 Q174,214 164,242 Q146,220 138,202 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M64,196 Q46,214 56,242 Q74,220 82,202 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M156,196 Q174,214 164,242 Q146,220 138,202 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M88,196 Q110,214 132,196" stroke="#fff" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>
+        <circle cx="110" cy="208" r="6" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-fit-gown,none)">
-        <path d="M86,176 L134,176 L140,214 Q184,296 148,306 Q110,318 72,306 Q36,296 80,214 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M86,176 L134,176 L140,214 Q184,296 148,306 Q110,318 72,306 Q36,296 80,214 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M86,176 L134,176 L137,200 L83,200 Z" fill="#fff" opacity=".35"/>
-        <path d="M80,224 Q110,238 140,224" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
-        <path d="M74,262 Q110,278 146,262" stroke="#fff" stroke-width="3" fill="none" opacity=".5"/>
+        <path d="M84,186 Q110,168 136,186 Q150,230 188,280 Q210,360 150,400 Q110,418 70,400 Q10,360 32,280 Q70,230 84,186 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M84,186 Q110,168 136,186 Q150,230 188,280 Q210,360 150,400 Q110,418 70,400 Q10,360 32,280 Q70,230 84,186 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M60,192 Q36,214 50,250 Q74,220 86,198 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M160,192 Q184,214 170,250 Q146,220 134,198 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M60,192 Q36,214 50,250 Q74,220 86,198 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M160,192 Q184,214 170,250 Q146,220 134,198 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M70,250 Q110,272 150,250" stroke="#fff" stroke-width="4" fill="none" opacity=".55" stroke-linecap="round"/>
+        <path d="M48,320 Q110,348 172,320" stroke="#fff" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>
       </g>
       <g style="display:var(--d-fit-party,none)">
-        <path d="M84,176 L136,176 L146,252 Q137,264 128,252 Q119,264 110,252 Q101,264 92,252 Q83,264 74,252 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M84,176 L136,176 L146,252 Q137,264 128,252 Q119,264 110,252 Q101,264 92,252 Q83,264 74,252 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M84,176 L136,176 L138,196 L82,196 Z" fill="#fff" opacity=".35"/>
-        <circle cx="110" cy="206" r="4" fill="#ffd60a"/>
+        <path d="M82,186 Q110,170 138,186 L152,248 Q142,272 130,250 Q120,274 110,250 Q100,274 90,250 Q78,272 68,248 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M82,186 Q110,170 138,186 L152,248 Q142,272 130,250 Q120,274 110,250 Q100,274 90,250 Q78,272 68,248 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M66,196 Q46,212 58,240 Q76,216 84,200 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M154,196 Q174,212 162,240 Q144,216 136,200 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M66,196 Q46,212 58,240 Q76,216 84,200 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M154,196 Q174,212 162,240 Q144,216 136,200 Z" fill="var(--d-pat,transparent)"/>
+        <circle cx="110" cy="214" r="6" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-fit-twopiece,none)">
-        <path d="M84,176 L136,176 L133,222 L87,222 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M84,176 L136,176 L133,222 L87,222 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M85,236 L135,236 L148,290 Q110,302 72,290 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M85,236 L135,236 L148,290 Q110,302 72,290 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M85,236 L135,236 L136,244 L84,244 Z" fill="#fff" opacity=".4"/>
+        <path d="M82,184 Q110,168 138,184 Q146,220 134,236 Q110,250 86,236 Q74,220 82,184 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M82,184 Q110,168 138,184 Q146,220 134,236 Q110,250 86,236 Q74,220 82,184 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M70,268 Q110,248 150,268 Q164,320 110,340 Q56,320 70,268 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M70,268 Q110,248 150,268 Q164,320 110,340 Q56,320 70,268 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M82,276 Q110,290 138,276" stroke="#fff" stroke-width="5" fill="none" opacity=".5" stroke-linecap="round"/>
       </g>
       <g style="display:var(--d-fit-tutu,none)">
-        <path d="M84,176 L136,176 L134,228 L86,228 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M84,176 L136,176 L134,228 L86,228 Z" fill="var(--d-pat,transparent)"/>
-        <ellipse cx="110" cy="240" rx="48" ry="18" fill="var(--d-dress,#ff2d95)"/>
-        <ellipse cx="110" cy="240" rx="48" ry="18" fill="var(--d-pat,transparent)"/>
-        <ellipse cx="110" cy="244" rx="40" ry="12" fill="#fff" opacity=".3"/>
-        <circle cx="110" cy="184" r="5" fill="#ffd60a"/>
+        <path d="M88,182 Q110,168 132,182 Q140,220 128,236 Q110,248 92,236 Q80,220 88,182 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M88,182 Q110,168 132,182 Q140,220 128,236 Q110,248 92,236 Q80,220 88,182 Z" fill="var(--d-pat,transparent)"/>
+        <ellipse cx="110" cy="268" rx="62" ry="22" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <ellipse cx="110" cy="252" rx="50" ry="18" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <ellipse cx="110" cy="240" rx="36" ry="14" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="110" cy="268" rx="62" ry="22" fill="var(--d-pat,transparent)"/>
+        <ellipse cx="110" cy="252" rx="50" ry="18" fill="var(--d-pat,transparent)"/>
+        <ellipse cx="110" cy="240" rx="36" ry="14" fill="var(--d-pat,transparent)"/>
+        <circle cx="110" cy="196" r="6" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-fit-mermaid,none)">
-        <path d="M86,176 L134,176 L128,246 Q126,296 152,316 Q110,330 68,316 Q94,296 92,246 Z" fill="var(--d-dress,#ff2d95)"/>
-        <path d="M86,176 L134,176 L128,246 Q126,296 152,316 Q110,330 68,316 Q94,296 92,246 Z" fill="var(--d-pat,transparent)"/>
-        <path d="M92,240 Q110,250 128,240" stroke="#fff" stroke-width="2.5" fill="none" opacity=".5"/>
-        <path d="M90,268 Q110,280 130,268" stroke="#fff" stroke-width="2.5" fill="none" opacity=".5"/>
-        <path d="M86,176 L134,176 L136,198 L84,198 Z" fill="#fff" opacity=".35"/>
+        <path d="M86,184 Q110,168 134,184 Q146,230 140,280 Q156,330 168,370 Q110,408 52,370 Q64,330 80,280 Q74,230 86,184 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M86,184 Q110,168 134,184 Q146,230 140,280 Q156,330 168,370 Q110,408 52,370 Q64,330 80,280 Q74,230 86,184 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M86,250 Q110,266 134,250" stroke="#fff" stroke-width="3.5" fill="none" opacity=".55" stroke-linecap="round"/>
+        <path d="M78,300 Q110,320 142,300" stroke="#fff" stroke-width="3.5" fill="none" opacity=".5" stroke-linecap="round"/>
+        <path d="M70,350 Q110,372 150,350" stroke="#fff" stroke-width="3.5" fill="none" opacity=".45" stroke-linecap="round"/>
       </g>
-      <g fill="#fff" opacity=".55">
-        <path d="M95,200 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
-        <path d="M124,212 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
-        <path d="M108,240 l1.5,4 4,1.5 -4,1.5 -1.5,4 -1.5,-4 -4,-1.5 4,-1.5 Z"/>
+      <g style="display:var(--d-fit-hoodie,none)">
+        <path d="M64,196 C46,210 32,256 38,300 C46,314 64,310 68,292 C76,250 80,214 86,196 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M156,196 C174,210 188,256 182,300 C174,314 156,310 152,292 C144,250 140,214 134,196 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M64,196 C46,210 32,256 38,300 C46,314 64,310 68,292 C76,250 80,214 86,196 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M156,196 C174,210 188,256 182,300 C174,314 156,310 152,292 C144,250 140,214 134,196 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M74,190 Q110,174 146,190 Q162,240 144,286 Q110,306 76,286 Q58,240 74,190 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M74,190 Q110,174 146,190 Q162,240 144,286 Q110,306 76,286 Q58,240 74,190 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M90,236 Q110,224 130,236 Q138,266 110,276 Q82,266 90,236 Z" fill="rgba(255,255,255,.35)" stroke="#6b3a2a" stroke-width="2.5"/>
+        <path d="M98,198 Q94,226 102,232" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M122,198 Q126,226 118,232" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="102" cy="234" r="3.5" fill="#fff" stroke="#6b3a2a" stroke-width="1.5"/>
+        <circle cx="118" cy="234" r="3.5" fill="#fff" stroke="#6b3a2a" stroke-width="1.5"/>
+        <path d="M78,278 Q110,292 142,278" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" opacity=".8"/>
       </g>
-      <!-- shoes -->
+      <g style="display:var(--d-fit-sundress,none)">
+        <path d="M96,168 Q94,196 102,208" stroke="var(--d-dress,#ff2d95)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M124,168 Q126,196 118,208" stroke="var(--d-dress,#ff2d95)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M90,198 Q110,182 130,198 Q138,228 110,238 Q82,228 90,198 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M90,198 Q110,182 130,198 Q138,228 110,238 Q82,228 90,198 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M48,246 Q110,214 172,246 Q180,330 110,352 Q40,330 48,246 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M48,246 Q110,214 172,246 Q180,330 110,352 Q40,330 48,246 Z" fill="var(--d-pat,transparent)"/>
+        <circle cx="110" cy="228" r="9" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="110" cy="228" r="4" fill="#ff2d95"/>
+      </g>
+      <g style="display:var(--d-fit-onesie,none)">
+        <path d="M70,188 Q110,166 150,188 C172,210 176,246 164,258 C172,310 160,360 136,384 C122,398 114,384 110,360 C106,384 98,398 84,384 C60,360 48,310 56,258 C44,246 48,210 70,188 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M70,188 Q110,166 150,188 C172,210 176,246 164,258 C172,310 160,360 136,384 C122,398 114,384 110,360 C106,384 98,398 84,384 C60,360 48,310 56,258 C44,246 48,210 70,188 Z" fill="var(--d-pat,transparent)"/>
+        <circle cx="110" cy="214" r="5" fill="#fff" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="110" cy="232" r="5" fill="#fff" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="110" cy="250" r="5" fill="#fff" stroke="#6b3a2a" stroke-width="2"/>
+        <path d="M96,176 Q110,166 124,176" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+      </g>
+      <g style="display:var(--d-fit-cape,none)">
+        <path d="M84,186 Q110,170 136,186 Q156,230 110,268 Q64,230 84,186 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="4"/>
+        <path d="M84,186 Q110,170 136,186 Q156,230 110,268 Q64,230 84,186 Z" fill="var(--d-pat,transparent)"/>
+        <path d="M96,178 Q110,164 124,178 Q118,192 110,194 Q102,192 96,178 Z" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="110" cy="184" r="4" fill="#ff2d95" stroke="#6b3a2a" stroke-width="1.5"/>
+      </g>
+
       <g style="display:var(--d-shoe-flats,none)">
-        <path d="M92,388 L106,388 L108,400 L88,400 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M114,388 L128,388 L132,400 L112,400 Z" fill="var(--d-shoec,#ff5fa2)"/>
+        <ellipse cx="96" cy="396" rx="24" ry="12" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="128" cy="396" rx="24" ry="12" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M76,390 Q96,380 116,390" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M108,390 Q128,380 148,390" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
       </g>
       <g style="display:var(--d-shoe-slides,none)">
-        <path d="M90,392 L108,392 L110,402 L86,402 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M112,392 L130,392 L134,402 L110,402 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <rect x="90" y="382" width="17" height="5" rx="2.5" fill="var(--d-shoec,#ff5fa2)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
-        <rect x="91" y="389" width="16" height="4" rx="2" fill="var(--d-shoec,#ff5fa2)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
-        <rect x="113" y="382" width="17" height="5" rx="2.5" fill="var(--d-shoec,#ff5fa2)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
-        <rect x="114" y="389" width="16" height="4" rx="2" fill="var(--d-shoec,#ff5fa2)" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
-        <circle cx="94" cy="384" r="1.6" fill="#ffd60a"/><circle cx="117" cy="384" r="1.6" fill="#ffd60a"/>
+        <ellipse cx="96" cy="398" rx="24" ry="12" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="128" cy="398" rx="24" ry="12" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M78,384 Q96,374 114,384" stroke="var(--d-shoec,#ff5fa2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M78,392 Q96,382 114,392" stroke="var(--d-shoec,#ff5fa2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M110,384 Q128,374 146,384" stroke="var(--d-shoec,#ff5fa2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M110,392 Q128,382 146,392" stroke="var(--d-shoec,#ff5fa2)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="88" cy="382" r="2.4" fill="#ffd60a"/><circle cx="120" cy="382" r="2.4" fill="#ffd60a"/>
       </g>
       <g style="display:var(--d-shoe-sneakers,none)">
-        <path d="M89,380 Q89,376 96,376 L103,376 Q109,378 109,388 L109,396 L89,396 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <rect x="87" y="394" width="24" height="7" rx="3.5" fill="#fff"/>
-        <path d="M93,382 L104,380 M93,387 L104,385" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        <path d="M113,380 Q113,376 120,376 L127,376 Q133,378 133,388 L133,396 L113,396 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <rect x="111" y="394" width="24" height="7" rx="3.5" fill="#fff"/>
-        <path d="M117,382 L128,380 M117,387 L128,385" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M72,378 Q74,364 96,362 L112,366 Q122,374 118,392 L118,402 Q96,414 72,400 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M70,396 Q96,408 120,396 L120,406 Q96,418 70,406 Z" fill="#fff" stroke="#6b3a2a" stroke-width="2"/>
+        <path d="M84,374 Q100,368 112,376" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M104,378 Q106,364 128,362 L144,366 Q154,374 150,392 L150,402 Q128,414 104,400 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M102,396 Q128,408 152,396 L152,406 Q128,418 102,406 Z" fill="#fff" stroke="#6b3a2a" stroke-width="2"/>
+        <path d="M116,374 Q132,368 144,376" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>
       </g>
       <g style="display:var(--d-shoe-heels,none)">
-        <path d="M90,386 L107,383 L109,395 L98,395 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <rect x="101" y="395" width="4.5" height="9" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M113,383 L130,386 L122,395 L111,395 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <rect x="115" y="395" width="4.5" height="9" fill="var(--d-shoec,#ff5fa2)"/>
-        <circle cx="93" cy="387" r="1.8" fill="#ffd60a"/><circle cx="127" cy="387" r="1.8" fill="#ffd60a"/>
+        <path d="M74,388 Q96,370 116,384 L110,400 Q90,408 74,396 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <rect x="104" y="396" width="7" height="14" rx="3" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="2"/>
+        <path d="M108,384 Q128,370 150,388 L146,396 Q126,408 112,400 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <rect x="112" y="396" width="7" height="14" rx="3" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="84" cy="386" r="2.5" fill="#ffd60a"/><circle cx="140" cy="386" r="2.5" fill="#ffd60a"/>
       </g>
       <g style="display:var(--d-shoe-boots,none)">
-        <rect x="90" y="336" width="18" height="62" rx="7" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M90,392 L112,392 L112,402 L90,402 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M92,344 L106,344" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>
-        <rect x="112" y="336" width="18" height="62" rx="7" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M108,392 L130,392 L130,402 L108,402 Z" fill="var(--d-shoec,#ff5fa2)"/>
-        <path d="M114,344 L128,344" stroke="rgba(255,255,255,.5)" stroke-width="3" stroke-linecap="round"/>
+        <path d="M76,328 Q74,318 96,316 L112,316 Q124,322 120,340 L122,384 Q124,408 98,410 Q72,406 74,384 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M82,334 Q100,326 114,336" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+        <path d="M100,328 Q98,318 120,316 L136,316 Q148,322 144,340 L146,384 Q148,408 122,410 Q96,406 98,384 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M106,334 Q124,326 138,336" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
       </g>
-      <!-- accessories -->
+      <g style="display:var(--d-shoe-rainboots,none)">
+        <path d="M70,336 Q66,322 94,320 L116,320 Q130,328 126,348 L128,388 Q132,414 98,416 Q64,412 66,388 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M76,360 H120" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+        <path d="M96,336 Q92,322 120,320 L142,320 Q156,328 152,348 L154,388 Q158,414 124,416 Q90,412 92,388 Z" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M102,360 H146" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <g style="display:var(--d-shoe-ballet,none)">
+        <ellipse cx="96" cy="398" rx="22" ry="11" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="128" cy="398" rx="22" ry="11" fill="var(--d-shoec,#ff5fa2)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M80,394 Q96,360 112,394" stroke="var(--d-shoec,#ff5fa2)" stroke-width="3.5" fill="none"/>
+        <path d="M112,394 Q96,366 80,394" stroke="var(--d-shoec,#ff5fa2)" stroke-width="3.5" fill="none"/>
+        <path d="M112,394 Q128,360 144,394" stroke="var(--d-shoec,#ff5fa2)" stroke-width="3.5" fill="none"/>
+        <path d="M144,394 Q128,366 112,394" stroke="var(--d-shoec,#ff5fa2)" stroke-width="3.5" fill="none"/>
+      </g>
+
       <g style="display:var(--d-acc-tiara,none)">
-        <path d="M88,32 L94,18 L102,30 L110,14 L118,30 L126,18 L132,32 Q110,26 88,32 Z" fill="#ffd60a" stroke="#e8b800" stroke-width="1.5"/>
-        <circle cx="110" cy="19" r="3" fill="#ff2d95"/>
+        <path d="M78,46 L88,22 L100,42 L110,12 L120,42 L132,22 L142,46 Q110,36 78,46 Z" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="110" cy="22" r="4" fill="#ff2d95" stroke="#6b3a2a" stroke-width="1.5"/>
       </g>
       <g style="display:var(--d-acc-crown,none)">
-        <path d="M84,36 L84,12 L97,25 L110,6 L123,25 L136,12 L136,36 Z" fill="#ffd60a" stroke="#e8b800" stroke-width="2"/>
-        <rect x="84" y="32" width="52" height="8" rx="3" fill="#e8b800"/>
-        <circle cx="97" cy="36" r="3" fill="#ff2d95"/><circle cx="110" cy="36" r="3" fill="#3a86ff"/><circle cx="123" cy="36" r="3" fill="#2ec4b6"/>
-        <circle cx="110" cy="10" r="3.5" fill="#ff2d95"/>
+        <path d="M74,50 L74,18 L92,36 L110,8 L128,36 L146,18 L146,50 Z" fill="#ffd60a" stroke="#6b3a2a" stroke-width="3" stroke-linejoin="round"/>
+        <rect x="74" y="44" width="72" height="10" rx="4" fill="#e8b800" stroke="#6b3a2a" stroke-width="2"/>
+        <circle cx="92" cy="49" r="3.5" fill="#ff2d95"/><circle cx="110" cy="49" r="3.5" fill="#3a86ff"/><circle cx="128" cy="49" r="3.5" fill="#2ec4b6"/>
       </g>
       <g style="display:var(--d-acc-bow,none)">
-        <path d="M62,52 Q50,42 48,54 Q46,66 60,62 Q52,74 64,74 Q74,74 68,60 Z" fill="#ff2d95"/>
-        <circle cx="63" cy="59" r="4" fill="#ffd60a"/>
+        <path d="M58,62 Q40,46 38,64 Q36,82 56,74 Q44,92 62,90 Q78,86 68,70 Z" fill="#ff2d95" stroke="#6b3a2a" stroke-width="2.5"/>
+        <circle cx="60" cy="72" r="5" fill="#ffd60a" stroke="#6b3a2a" stroke-width="2"/>
       </g>
       <g style="display:var(--d-acc-earrings,none)">
-        <circle cx="58" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
-        <circle cx="162" cy="114" r="5" fill="none" stroke="#ffd60a" stroke-width="3"/>
+        <circle cx="50" cy="122" r="6" fill="none" stroke="#ffd60a" stroke-width="3.5"/>
+        <circle cx="170" cy="122" r="6" fill="none" stroke="#ffd60a" stroke-width="3.5"/>
       </g>
       <g style="display:var(--d-acc-sunglasses,none)">
-        <rect x="66" y="83" width="38" height="20" rx="10" fill="#1a1030" opacity=".92"/>
-        <rect x="116" y="83" width="38" height="20" rx="10" fill="#1a1030" opacity=".92"/>
-        <path d="M104,90 L116,90" stroke="#1a1030" stroke-width="4"/>
-        <path d="M66,90 L58,95 M154,90 L162,95" stroke="#1a1030" stroke-width="3"/>
-        <path d="M73,88 Q80,85 88,87" stroke="rgba(255,255,255,.55)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-        <path d="M123,88 Q130,85 138,87" stroke="rgba(255,255,255,.55)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <rect x="58" y="88" width="44" height="30" rx="15" fill="#1a1030" stroke="#6b3a2a" stroke-width="2.5"/>
+        <rect x="118" y="88" width="44" height="30" rx="15" fill="#1a1030" stroke="#6b3a2a" stroke-width="2.5"/>
+        <path d="M102,100 H118" stroke="#1a1030" stroke-width="5"/>
+        <path d="M58,100 Q48,106 44,112" stroke="#1a1030" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M162,100 Q172,106 176,112" stroke="#1a1030" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M68,96 Q78,92 88,96" stroke="rgba(255,255,255,.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M128,96 Q138,92 148,96" stroke="rgba(255,255,255,.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
       </g>
       <g style="display:var(--d-acc-necklace,none)">
-        <path d="M94,176 Q110,192 126,176" stroke="#ffd60a" stroke-width="3" fill="none"/>
-        <circle cx="110" cy="189" r="5" fill="#ff2d95" stroke="#ffd60a" stroke-width="2"/>
+        <path d="M88,184 Q110,208 132,184" stroke="#ffd60a" stroke-width="4" fill="none"/>
+        <circle cx="110" cy="204" r="7" fill="#ff2d95" stroke="#ffd60a" stroke-width="3"/>
       </g>
       <g style="display:var(--d-acc-hat,none)">
-        <path d="M76,44 Q80,10 110,10 Q140,10 144,44 Z" fill="#ffd166"/>
-        <ellipse cx="110" cy="44" rx="58" ry="12" fill="#ffd166"/>
-        <ellipse cx="110" cy="44" rx="58" ry="12" fill="rgba(0,0,0,.06)"/>
-        <path d="M78,38 Q110,48 142,38" stroke="#ff2d95" stroke-width="6" fill="none"/>
+        <path d="M72,58 Q76,8 110,8 Q144,8 148,58 Z" fill="#ffd166" stroke="#6b3a2a" stroke-width="3.5"/>
+        <ellipse cx="110" cy="58" rx="64" ry="14" fill="#ffd166" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M74,50 Q110,64 146,50" stroke="#ff2d95" stroke-width="7" fill="none" stroke-linecap="round"/>
+      </g>
+      <g style="display:var(--d-acc-flower,none)">
+        <g transform="translate(164,70)">
+          <circle cx="0" cy="-10" r="7" fill="#ff5fa2" stroke="#6b3a2a" stroke-width="1.5"/>
+          <circle cx="9" cy="-2" r="7" fill="#ff8fab" stroke="#6b3a2a" stroke-width="1.5"/>
+          <circle cx="5" cy="9" r="7" fill="#ff5fa2" stroke="#6b3a2a" stroke-width="1.5"/>
+          <circle cx="-6" cy="9" r="7" fill="#ff8fab" stroke="#6b3a2a" stroke-width="1.5"/>
+          <circle cx="-9" cy="-2" r="7" fill="#ff5fa2" stroke="#6b3a2a" stroke-width="1.5"/>
+          <circle r="5" fill="#ffd60a" stroke="#6b3a2a" stroke-width="1.5"/>
+        </g>
+      </g>
+      <g style="display:var(--d-acc-bunny,none)">
+        <ellipse cx="78" cy="30" rx="13" ry="30" fill="#fff" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="78" cy="34" rx="6" ry="18" fill="#ffb6de"/>
+        <ellipse cx="142" cy="30" rx="13" ry="30" fill="#fff" stroke="#6b3a2a" stroke-width="3"/>
+        <ellipse cx="142" cy="34" rx="6" ry="18" fill="#ffb6de"/>
+      </g>
+      <g style="display:var(--d-acc-catears,none)">
+        <path d="M64,58 L76,4 L98,52 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M72,50 L78,16 L90,46 Z" fill="#ff8fa3"/>
+        <path d="M156,52 L178,4 L190,58 Z" fill="var(--d-hairc,#7a4a21)" stroke="#6b3a2a" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M164,46 L176,16 L182,50 Z" fill="#ff8fa3"/>
+      </g>
+      <g style="display:var(--d-acc-scarf,none)">
+        <path d="M70,168 Q110,196 150,168 Q158,188 146,202 Q110,222 74,202 Q62,188 70,168 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3.5"/>
+        <path d="M96,198 Q86,246 102,268 Q116,244 108,198 Z" fill="var(--d-dress,#ff2d95)" stroke="#6b3a2a" stroke-width="3"/>
+        <path d="M84,178 Q110,196 136,178" stroke="#fff" stroke-width="4" fill="none" opacity=".6" stroke-linecap="round"/>
       </g>
     </g>
 
@@ -574,10 +693,36 @@
     </button>
   </div>
   <div id="faceWrap">
-    <svg id="studioSvg" viewBox="30 2 160 160"><use id="studioUse" href="#doll"/></svg>
+    <div id="studioDoll" class="dollSlot face zoom-face"></div>
   </div>
   <div id="palette">
     <div id="pal-makeup">
+      <div class="palRow" id="rowFace">
+        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ffb703"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></div>
+        <div class="swatches">
+          <div class="sw" id="twGlit" title="glitter" style="background:linear-gradient(135deg,#fff3b0,#ffd60a)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#a4133c"><use href="#ic-star"/></svg>
+          </div>
+          <div class="sw" id="twLash" title="lashes" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#14082b" stroke-width="2" stroke-linecap="round"><path d="M3 12q9-8 18 0"/><path d="M6 10l-2-3M12 8.5V5M18 10l2-3"/></svg>
+          </div>
+          <div class="sw" id="twFrk" title="freckles" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#b5713f"><circle cx="7" cy="10" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="17" cy="10" r="1.6"/><circle cx="9" cy="15" r="1.4"/><circle cx="15" cy="15" r="1.4"/></svg>
+          </div>
+          <div class="sw" id="twGem" title="face gems" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#3a86ff"><path d="M12 3l6 7-6 11L6 10z"/><path d="M12 3l6 7H6z" fill="#7fd8ff"/></svg>
+          </div>
+          <div class="sw" id="twHeart" title="heart cheeks" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#ff2d95"><path d="M7 13c-2-3 0-6 2.5-4C11 7 12 9 12 10c0-1 1-3 2.5-1C17 7 19 10 17 13c-1 1.5-3 3-5 5-2-2-4-3.5-5-5z"/></svg>
+          </div>
+          <div class="sw" id="twSticker" title="star stickers" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#ffd60a"><use href="#ic-star"/></svg>
+          </div>
+          <div class="sw" id="twWing" title="cat-eye liner" style="background:#fff">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#14082b" stroke-width="2.4" stroke-linecap="round"><path d="M3 14 Q8 8 14 13"/><path d="M14 13 L19 8"/></svg>
+          </div>
+        </div>
+      </div>
       <div class="palRow" id="rowLips">
         <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ff2d95"><path d="M12 10c-1.5-2-4.5-3-7-1.5C2.5 10 2 12 3 13.5 5 16.5 8.5 18 12 18s7-1.5 9-4.5c1-1.5.5-3.5-2-5-2.5-1.5-5.5-.5-7 1.5z"/></svg></div>
         <div class="swatches"></div>
@@ -594,23 +739,6 @@
         <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#e0218a"><path d="M12 2c2.5 0 4 2 4 5v7a4 4 0 0 1-8 0V7c0-3 1.5-5 4-5z"/><circle cx="12" cy="19" r="2" fill="#ff8fa3"/></svg></div>
         <div class="swatches"></div>
       </div>
-      <div class="palRow" id="rowFace">
-        <div class="palIcon"><svg width="30" height="30" viewBox="0 0 24 24" fill="#ffb703"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg></div>
-        <div class="swatches">
-          <div class="sw" id="twGlit" title="glitter" style="background:linear-gradient(135deg,#fff3b0,#ffd60a)">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#a4133c"><use href="#ic-star"/></svg>
-          </div>
-          <div class="sw" id="twLash" title="lashes" style="background:#fff">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#14082b" stroke-width="2" stroke-linecap="round"><path d="M3 12q9-8 18 0"/><path d="M6 10l-2-3M12 8.5V5M18 10l2-3"/></svg>
-          </div>
-          <div class="sw" id="twFrk" title="freckles" style="background:#fff">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#b5713f"><circle cx="7" cy="10" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="17" cy="10" r="1.6"/><circle cx="9" cy="15" r="1.4"/><circle cx="15" cy="15" r="1.4"/></svg>
-          </div>
-          <div class="sw" id="twGem" title="face gems" style="background:#fff">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#3a86ff"><path d="M12 3l6 7-6 11L6 10z"/><path d="M12 3l6 7H6z" fill="#7fd8ff"/></svg>
-          </div>
-        </div>
-      </div>
     </div>
     <div id="pal-hair" style="display:none">
       <div class="palRow" id="rowHairStyle">
@@ -622,6 +750,8 @@
           <div class="sw shape-sw" data-key="hair" data-val="bun" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#7a4a21"><circle cx="12" cy="13" r="6"/><circle cx="12" cy="4.5" r="3.5"/></svg></div>
           <div class="sw shape-sw" data-key="hair" data-val="braid" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#7a4a21"><circle cx="10" cy="7" r="5"/><circle cx="16" cy="11" r="2.6"/><circle cx="16.5" cy="15.5" r="2.3"/><circle cx="16" cy="19.5" r="2"/></svg></div>
           <div class="sw shape-sw" data-key="hair" data-val="pony" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#7a4a21"><circle cx="10" cy="9" r="6"/><path d="M15,5 Q21,7 20,14 Q19.5,19 16,21 Q18,14 15.5,8 Z"/></svg></div>
+          <div class="sw shape-sw" data-key="hair" data-val="bob" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#7a4a21"><path d="M6,12 Q6,4 12,4 Q18,4 18,12 Q17,16 15,17 Q12,18 9,17 Q7,16 6,12 Z"/></svg></div>
+          <div class="sw shape-sw" data-key="hair" data-val="spacebuns" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24" fill="#7a4a21"><circle cx="12" cy="12" r="5"/><circle cx="5" cy="6" r="3.2"/><circle cx="19" cy="6" r="3.2"/></svg></div>
         </div>
       </div>
       <div class="palRow" id="rowHairCol">
@@ -653,6 +783,10 @@
           <div class="sw shape-sw" data-key="style" data-val="twopiece" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9,3 L15,3 L14.5,9 L9.5,9 Z" fill="#ff2d95"/><path d="M9,12 L15,12 L17,20 L7,20 Z" fill="#ff2d95"/></svg></div>
           <div class="sw shape-sw" data-key="style" data-val="tutu" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M10,3 L14,3 L14,11 L10,11 Z" fill="#ff2d95"/><ellipse cx="12" cy="14" rx="8" ry="4" fill="#ff2d95"/></svg></div>
           <div class="sw shape-sw" data-key="style" data-val="mermaid" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M9,3 L15,3 L13.5,12 Q13,17 17,20 Q12,22 7,20 Q11,17 10.5,12 Z" fill="#ff2d95"/></svg></div>
+          <div class="sw shape-sw" data-key="style" data-val="hoodie" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M7,10 Q12,7 17,10 Q18,18 12,20 Q6,18 7,10 Z" fill="#ff2d95"/><path d="M9,15 Q12,14 15,15 Q15,17 12,18 Q9,17 9,15 Z" fill="#fff" opacity=".7"/></svg></div>
+          <div class="sw shape-sw" data-key="style" data-val="sundress" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M10,4 L11,9 L13,9 L14,4" stroke="#ff2d95" stroke-width="1.4" fill="none"/><path d="M9,9 Q12,7 15,9 L14,12 Q12,13 10,12 Z" fill="#ff2d95"/><path d="M5,13 Q12,11 19,13 Q18,20 12,21 Q6,20 5,13 Z" fill="#ff2d95"/></svg></div>
+          <div class="sw shape-sw" data-key="style" data-val="onesie" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M8,4 Q12,2 16,4 Q18,10 16,12 L16,20 Q12,22 8,20 L8,12 Q6,10 8,4 Z" fill="#ff2d95"/><circle cx="12" cy="12" r="2" fill="#fff"/></svg></div>
+          <div class="sw shape-sw" data-key="style" data-val="cape" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M5,8 Q2,16 6,21 Q12,23 18,21 Q22,16 19,8 Q12,11 5,8 Z" fill="#ff8fab"/><path d="M9,6 Q12,4 15,6 Q16,14 12,16 Q8,14 9,6 Z" fill="#ff2d95"/></svg></div>
         </div>
       </div>
       <div class="palRow" id="rowPat">
@@ -670,7 +804,9 @@
           <div class="sw shape-sw" data-key="shoe" data-val="slides" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M4,16 L20,16 L21,20 L3,20 Z" fill="#ff5fa2"/><rect x="6" y="9" width="12" height="3" rx="1.5" fill="#ff5fa2" stroke="#c9126e"/><rect x="6" y="13" width="12" height="2.4" rx="1.2" fill="#ff5fa2" stroke="#c9126e"/></svg></div>
           <div class="sw shape-sw" data-key="shoe" data-val="sneakers" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M5,8 Q5,5 9,5 L13,5 Q17,7 17,13 L17,17 L5,17 Z" fill="#ff5fa2"/><rect x="4" y="16" width="16" height="4" rx="2" fill="#e9ecef"/></svg></div>
           <div class="sw shape-sw" data-key="shoe" data-val="heels" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M4,13 L18,10 L20,17 L11,17 Z" fill="#ff5fa2"/><rect x="14" y="17" width="3" height="5" fill="#ff5fa2"/></svg></div>
-          <div class="sw shape-sw" data-key="shoe" data-val="boots" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="14" rx="3" fill="#ff5fa2"/><path d="M8,15 L19,15 L19,20 L8,20 Z" fill="#ff5fa2"/></svg></div>
+          <div class="sw shape-sw" data-key="shoe" data-val="boots" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M8,4 Q8,2 12,2 Q16,2 16,6 L16,15 Q17,20 12,20 Q7,20 8,15 Z" fill="#ff5fa2"/></svg></div>
+          <div class="sw shape-sw" data-key="shoe" data-val="rainboots" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M7,5 Q7,3 12,3 Q17,3 17,7 L17,16 Q18,21 12,21 Q6,21 7,16 Z" fill="#3a86ff"/><path d="M8,12 H16" stroke="#fff" stroke-width="2"/></svg></div>
+          <div class="sw shape-sw" data-key="shoe" data-val="ballet" style="background:#fff"><svg width="30" height="30" viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="7" ry="3" fill="#ff8fab"/><path d="M8,15 Q12,6 16,15" stroke="#ff5fa2" stroke-width="1.5" fill="none"/></svg></div>
         </div>
       </div>
       <div class="palRow" id="rowShoeCol">
@@ -689,6 +825,10 @@
           <div class="sw acc-sw" data-acc="necklace" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5,5 Q12,15 19,5" stroke="#ffd60a" stroke-width="2.5"/><circle cx="12" cy="14" r="3" fill="#ff2d95" stroke="#ffd60a" stroke-width="1.5"/></svg></div>
           <div class="sw acc-sw" data-acc="hat" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M7,13 Q8,5 12,5 Q16,5 17,13 Z" fill="#ffd166"/><ellipse cx="12" cy="14" rx="9" ry="3" fill="#ffd166"/><path d="M8,12 Q12,14 16,12" stroke="#ff2d95" stroke-width="2" fill="none"/></svg></div>
           <div class="sw acc-sw" data-acc="wings" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M11,12 Q2,6 3,13 Q4,19 11,15 Z" fill="#bde0fe" stroke="#8338ec"/><path d="M13,12 Q22,6 21,13 Q20,19 13,15 Z" fill="#bde0fe" stroke="#8338ec"/></svg></div>
+          <div class="sw acc-sw" data-acc="flower" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="7" r="3" fill="#ff5fa2"/><circle cx="17" cy="11" r="3" fill="#ff5fa2"/><circle cx="15" cy="16" r="3" fill="#ff5fa2"/><circle cx="9" cy="16" r="3" fill="#ff5fa2"/><circle cx="7" cy="11" r="3" fill="#ff5fa2"/><circle cx="12" cy="12" r="2.2" fill="#ffd60a"/></svg></div>
+          <div class="sw acc-sw" data-acc="bunny" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><ellipse cx="8" cy="10" rx="3" ry="8" fill="#fff" stroke="#ffb6de"/><ellipse cx="16" cy="10" rx="3" ry="8" fill="#fff" stroke="#ffb6de"/><circle cx="12" cy="18" r="4" fill="#ffd6ec"/></svg></div>
+          <div class="sw acc-sw" data-acc="catears" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M6,16 L8,4 L14,14 Z" fill="#7a4a21"/><path d="M18,16 L16,4 L10,14 Z" fill="#7a4a21"/><circle cx="12" cy="18" r="4" fill="#ffd6ec"/></svg></div>
+          <div class="sw acc-sw" data-acc="scarf" style="background:#fff"><svg width="28" height="28" viewBox="0 0 24 24"><path d="M4,8 Q12,14 20,8 Q20,12 12,16 Q4,12 4,8 Z" fill="#ff2d95"/><path d="M10,15 L9,22 L13,18 Z" fill="#ff2d95"/></svg></div>
         </div>
       </div>
     </div>
@@ -712,7 +852,7 @@
   <svg id="crowdL" viewBox="0 0 220 70" preserveAspectRatio="none"><g fill="#160d2b"><circle cx="20" cy="26" r="14"/><circle cx="52" cy="20" r="16"/><circle cx="86" cy="27" r="14"/><circle cx="118" cy="19" r="16"/><circle cx="152" cy="26" r="14"/><circle cx="186" cy="21" r="15"/><rect y="30" width="220" height="40"/><path d="M36,26 L42,6" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/><path d="M136,24 L130,5" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/></g><circle cx="42" cy="6" r="4" fill="#ffd60a"/><circle cx="130" cy="5" r="4" fill="#ff5fa2"/></svg>
   <svg id="crowdR" viewBox="0 0 220 70" preserveAspectRatio="none"><g fill="#160d2b"><circle cx="28" cy="21" r="15"/><circle cx="62" cy="27" r="14"/><circle cx="96" cy="19" r="16"/><circle cx="130" cy="26" r="14"/><circle cx="164" cy="20" r="16"/><circle cx="196" cy="27" r="14"/><rect y="30" width="220" height="40"/><path d="M80,24 L86,4" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/><path d="M178,25 L172,6" stroke="#160d2b" stroke-width="7" stroke-linecap="round"/></g><circle cx="86" cy="4" r="4" fill="#2ec4b6"/><circle cx="172" cy="6" r="4" fill="#ffd60a"/></svg>
   <div id="walkerName"></div>
-  <div id="walkerBox"><svg viewBox="15 0 190 415"><use id="walkerUse" href="#doll"/></svg></div>
+  <div id="walkerBox"><div id="walkerDoll" class="dollSlot full"></div></div>
 </div>
 
 <!-- ============ JUDGING ============ -->
@@ -724,10 +864,10 @@
     <div class="judgeCell"><svg viewBox="10 0 100 130"><use href="#judge-pearl"/></svg><div class="judgeName">Grandma Pearl</div></div>
     <div class="judgeCell"><svg viewBox="10 0 100 130"><use href="#judge-rocky"/></svg><div class="judgeName">Rocky</div></div>
     <div></div>
-    <div class="rowLabel"><svg viewBox="48 24 124 124"><use id="lblZ" href="#doll"/></svg>Zoey</div>
+    <div class="rowLabel"><div id="lblZ" class="dollSlot face"></div>Zoey</div>
     <div class="card" id="zc0"></div><div class="card" id="zc1"></div><div class="card" id="zc2"></div>
     <div class="total" id="ztot"></div>
-    <div class="rowLabel"><svg viewBox="48 24 124 124"><use id="lblC" href="#doll"/></svg><span id="lblCName">Rival</span></div>
+    <div class="rowLabel"><div id="lblC" class="dollSlot face"></div><span id="lblCName">Rival</span></div>
     <div class="card blue" id="cc0"></div><div class="card blue" id="cc1"></div><div class="card blue" id="cc2"></div>
     <div class="total" id="ctot"></div>
   </div>
@@ -743,7 +883,7 @@
   <div id="mag">
     <div id="magHead">SUPERSTAR</div>
     <div id="magSub"></div>
-    <svg id="magSvg" viewBox="15 0 190 415"><use id="magUse" href="#doll"/></svg>
+    <div id="magDoll" class="dollSlot full"></div>
     <div id="magBanner">ZOEY WINS!</div>
     <div id="magTag"></div>
   </div>
@@ -765,9 +905,9 @@ const STAR='<svg width="18" height="18" viewBox="0 0 24 24" fill="#ffd60a"><use 
 
 // ---------- palettes ----------
 const COLORS = {
-  lips:   [["#e63946","red"],["#ff5fa2","pink"],["#e0218a","hot pink"],["#9b5de5","purple"],["#ff7f50","coral"],["#ff9505","orange"],["#ffb703","gold"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#e9ecef","silver"],["#2d2d2d","black"]],
-  shadow: [["#ff9ecb","pink"],["#f72585","hot pink"],["#b388eb","purple"],["#cdb4db","lavender"],["#7fd8ff","blue"],["#2ec4b6","teal"],["#8fe388","green"],["#b5e48c","lime"],["#ffd166","gold"],["#ff9e40","orange"],["#ff4d6d","red"],["#ced4da","silver"],["#212529","black"]],
-  blush:  [["#ff8fa3","pink"],["#ff69b4","hot pink"],["#ffb07c","peach"],["#ff9770","coral"],["#e5989b","rose"],["#f08080","red"],["#c77dff","violet"],["#d4a373","bronze"]],
+  lips:   [["#e63946","red"],["#ff5fa2","pink"],["#e0218a","hot pink"],["#c9184a","berry"],["#ffb3c6","pale pink"],["#9b5de5","purple"],["#ff7f50","coral"],["#ff9505","orange"],["#ffb703","gold"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#e9ecef","silver"],["#2d2d2d","black"],["url(#rbow)","rainbow"]],
+  shadow: [["#ff9ecb","pink"],["#f72585","hot pink"],["#b388eb","purple"],["#cdb4db","lavender"],["#7fd8ff","blue"],["#2ec4b6","teal"],["#8fe388","green"],["#b5e48c","lime"],["#ffd166","gold"],["#ff9e40","orange"],["#ff4d6d","red"],["#ced4da","silver"],["#212529","black"],["#ffffff","white"],["url(#rbow)","rainbow"]],
+  blush:  [["#ff8fa3","pink"],["#ff69b4","hot pink"],["#ffb07c","peach"],["#ff9770","coral"],["#e5989b","rose"],["#f08080","red"],["#c77dff","violet"],["#d4a373","bronze"],["#ffd6a5","apricot"],["#f8d6ff","lilac"]],
   nails:  [["#ff2d95","pink"],["#e63946","red"],["#9b5de5","purple"],["#3a86ff","blue"],["#2ec4b6","teal"],["#ffd60a","gold"],["#f8f9fa","white"],["#212529","black"]]
 };
 const DRESSCOL = [["#ff2d95","pink"],["#f72585","hot pink"],["#8338ec","purple"],["#cdb4db","lavender"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#ffd166","gold"],["#ff9505","orange"],["#e63946","red"],["#f8f9fa","white"],["#212529","black"]];
@@ -775,23 +915,23 @@ const SHOECOL  = [["#ff5fa2","pink"],["#ffd60a","gold"],["#ced4da","silver"],["#
 const HAIRCOL  = [["#7a4a21","light brown"],["#6b3410","brown"],["#2b2118","black"],["#f4c95d","blonde"],["#c1440e","red"],["#ff5fa2","pink"],["#e0218a","hot pink"],["#8338ec","purple"],["#3a86ff","blue"],["#2ec4b6","teal"],["#57cc99","green"],["#ced4da","silver"],["url(#rbow)","rainbow"]];
 const EYECOL   = [["#6b4423","brown"],["#3a86ff","blue"],["#2d6a4f","green"],["#2ec4b6","teal"],["#8338ec","purple"],["#6c757d","gray"]];
 const SKINCOL  = [["#ffe0c4","fair"],["#f8d2ac","light"],["#f2c19a","peach"],["#d9a06b","tan"],["#b97a4b","golden"],["#8d5a3b","brown"],["#6b4226","deep"]];
-const PATTERNS = [["url(#pat-tiedye)","tie-dye","tiedye"],["url(#pat-dots)","polka dot","dots"],["url(#pat-stripes)","stripey","stripes"],["url(#pat-stars)","starry","stars"],["url(#pat-leo)","leopard","leo"],["url(#pat-sparkle)","sparkle","sparkle"]];
-const FITN  = {aline:"dress",gown:"gown",party:"party dress",twopiece:"two-piece",tutu:"tutu",mermaid:"mermaid gown"};
-const SHOEN = {flats:"flats",slides:"slide sandals",sneakers:"sneakers",heels:"high heels",boots:"boots"};
-const ACCN  = {tiara:"tiara",crown:"crown",bow:"bow",earrings:"gold hoops",sunglasses:"sunglasses",necklace:"necklace",hat:"sun hat",wings:"fairy wings"};
+const PATTERNS = [["url(#pat-tiedye)","tie-dye","tiedye"],["url(#pat-dots)","polka dot","dots"],["url(#pat-stripes)","stripey","stripes"],["url(#pat-stars)","starry","stars"],["url(#pat-hearts)","hearts","hearts"],["url(#pat-flowers)","flowers","flowers"],["url(#pat-leo)","leopard","leo"],["url(#pat-sparkle)","sparkle","sparkle"]];
+const FITN  = {aline:"dress",gown:"gown",party:"party dress",twopiece:"two-piece",tutu:"tutu",mermaid:"mermaid gown",hoodie:"hoodie",sundress:"sundress",onesie:"onesie",cape:"cape"};
+const SHOEN = {flats:"flats",slides:"slide sandals",sneakers:"sneakers",heels:"high heels",boots:"boots",rainboots:"rain boots",ballet:"ballet slippers"};
+const ACCN  = {tiara:"tiara",crown:"crown",bow:"bow",earrings:"gold hoops",sunglasses:"sunglasses",necklace:"necklace",hat:"sun hat",wings:"fairy wings",flower:"flower",bunny:"bunny ears",catears:"cat ears",scarf:"scarf"};
 
 // ---------- themes ----------
 const THEMES=[
- {id:"beach",name:"Beach Day",line:"Sunshine, splashes and flip-flop fun!",bg:"#7fd8ff",cols:["blue","teal","coral","gold","orange","white"],pats:["tiedye","dots"],fits:["twopiece","party"],shoes:["slides"],accs:["sunglasses","hat"],icon:'<circle cx="12" cy="12" r="5" fill="#ffd60a"/><g stroke="#ffd60a" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></g>'},
- {id:"princess",name:"Princess Ball",line:"Gowns, crowns and royal sparkle!",bg:"#ffb6de",cols:["pink","lavender","purple","gold","white"],pats:["sparkle"],fits:["gown"],shoes:["heels"],accs:["tiara","crown","necklace"],icon:'<path d="M4,17 L4,7 L9,12 L12,4 L15,12 L20,7 L20,17 Z" fill="#ffd60a"/><rect x="4" y="16" width="16" height="3" fill="#e8b800"/>'},
- {id:"rockstar",name:"Rock Star",line:"Loud, bold and ready to shred!",bg:"#212529",cols:["black","red","hot pink","purple","silver"],pats:["stars","leo"],fits:["twopiece","party"],shoes:["boots"],accs:["sunglasses","earrings"],icon:'<path d="M13 2L4 14h6l-2 8 9-12h-6z" fill="#ffd60a"/>'},
+ {id:"beach",name:"Beach Day",line:"Sunshine, splashes and flip-flop fun!",bg:"#7fd8ff",cols:["blue","teal","coral","gold","orange","white"],pats:["tiedye","dots","flowers"],fits:["twopiece","party","sundress"],shoes:["slides","rainboots"],accs:["sunglasses","hat","flower"],icon:'<circle cx="12" cy="12" r="5" fill="#ffd60a"/><g stroke="#ffd60a" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></g>'},
+ {id:"princess",name:"Princess Ball",line:"Gowns, crowns and royal sparkle!",bg:"#ffb6de",cols:["pink","lavender","purple","gold","white"],pats:["sparkle","hearts"],fits:["gown","sundress"],shoes:["heels","ballet"],accs:["tiara","crown","necklace","flower"],icon:'<path d="M4,17 L4,7 L9,12 L12,4 L15,12 L20,7 L20,17 Z" fill="#ffd60a"/><rect x="4" y="16" width="16" height="3" fill="#e8b800"/>'},
+ {id:"rockstar",name:"Rock Star",line:"Loud, bold and ready to shred!",bg:"#212529",cols:["black","red","hot pink","purple","silver"],pats:["stars","leo"],fits:["twopiece","party","hoodie","cape"],shoes:["boots"],accs:["sunglasses","earrings"],icon:'<path d="M13 2L4 14h6l-2 8 9-12h-6z" fill="#ffd60a"/>'},
  {id:"mermaid",name:"Mermaid Magic",line:"Shimmery scales under the sea!",bg:"#2ec4b6",cols:["teal","blue","green","purple","lavender"],pats:["sparkle","dots"],fits:["mermaid"],shoes:[],accs:["necklace"],icon:'<path d="M12 3c4 3 6 7 6 11a6 6 0 0 1-12 0c0-4 2-8 6-11z" fill="#7fd8ff"/><path d="M12 21l-3 2 1-4 2-1 2 1 1 4z" fill="#2ec4b6"/>'},
- {id:"unicorn",name:"Unicorn Dreams",line:"Rainbows, magic and ALL the colors!",bg:"#cdb4db",cols:["pink","lavender","purple","teal","white","hot pink"],pats:["stars","tiedye"],fits:["tutu","party"],shoes:[],accs:["wings"],icon:'<path d="M7 20c-2-5 0-12 5-15l1 5 4-2c2 4 2 9-1 12z" fill="#fff"/><path d="M12 5l4-4 -1 5z" fill="#ffd60a"/><circle cx="10" cy="13" r="1.4" fill="#8338ec"/>'},
- {id:"winter",name:"Winter Wonderland",line:"Snowy sparkle and cozy style!",bg:"#bde0fe",cols:["white","blue","silver","lavender"],pats:["dots","sparkle"],fits:["gown"],shoes:["boots"],accs:["hat"],icon:'<g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7L4 17M8 4l4 3 4-3M8 20l4-3 4 3"/></g>'},
- {id:"pajama",name:"Pajama Party",line:"Comfy, cute and up past bedtime!",bg:"#9b5de5",cols:["pink","lavender","peach","blue","white"],pats:["dots","stripes"],fits:["party","aline"],shoes:["flats"],accs:["bow"],icon:'<path d="M17 4a7 7 0 1 0 3 9 8 8 0 0 1-3-9z" fill="#ffd60a"/><circle cx="6" cy="5" r="1" fill="#fff"/><circle cx="9" cy="9" r="0.8" fill="#fff"/>'},
- {id:"garden",name:"Garden Party",line:"Flowers, butterflies and fresh air!",bg:"#8fe388",cols:["green","pink","gold","coral","lime","white"],pats:["dots"],fits:["aline","party"],shoes:["flats"],accs:["hat","bow"],icon:'<circle cx="12" cy="9" r="3" fill="#ffd60a"/><g fill="#ff5fa2"><circle cx="12" cy="4" r="2.6"/><circle cx="17" cy="7" r="2.6"/><circle cx="16" cy="13" r="2.6"/><circle cx="8" cy="13" r="2.6"/><circle cx="7" cy="7" r="2.6"/></g><path d="M12 13v8" stroke="#57cc99" stroke-width="2"/>'},
- {id:"disco",name:"Neon Disco",line:"Glitter ball spinning, lights flashing!",bg:"#f72585",cols:["hot pink","purple","gold","silver","teal"],pats:["sparkle","stripes"],fits:["party","twopiece"],shoes:["heels","sneakers"],accs:["earrings","necklace"],icon:'<circle cx="12" cy="12" r="8" fill="#ced4da"/><path d="M4 9h16M4 15h16M9 4v16M15 4v16" stroke="#868e96" stroke-width="1.4"/>'},
- {id:"moviestar",name:"Movie Star Night",line:"Red carpet, flashing cameras, fancy fancy!",bg:"#e63946",cols:["red","black","gold","white"],pats:["sparkle"],fits:["gown","mermaid"],shoes:["heels"],accs:["sunglasses","necklace","earrings"],icon:'<path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z" fill="#ffd60a"/>'}
+ {id:"unicorn",name:"Unicorn Dreams",line:"Rainbows, magic and ALL the colors!",bg:"#cdb4db",cols:["pink","lavender","purple","teal","white","hot pink"],pats:["stars","tiedye","hearts"],fits:["tutu","party","cape"],shoes:["ballet"],accs:["wings","bunny","catears"],icon:'<path d="M7 20c-2-5 0-12 5-15l1 5 4-2c2 4 2 9-1 12z" fill="#fff"/><path d="M12 5l4-4 -1 5z" fill="#ffd60a"/><circle cx="10" cy="13" r="1.4" fill="#8338ec"/>'},
+ {id:"winter",name:"Winter Wonderland",line:"Snowy sparkle and cozy style!",bg:"#bde0fe",cols:["white","blue","silver","lavender"],pats:["dots","sparkle"],fits:["gown","hoodie"],shoes:["boots","rainboots"],accs:["hat","scarf"],icon:'<g stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M4 7l16 10M20 7L4 17M8 4l4 3 4-3M8 20l4-3 4 3"/></g>'},
+ {id:"pajama",name:"Pajama Party",line:"Comfy, cute and up past bedtime!",bg:"#9b5de5",cols:["pink","lavender","peach","blue","white"],pats:["dots","stripes","hearts"],fits:["party","aline","hoodie","onesie"],shoes:["flats"],accs:["bow"],icon:'<path d="M17 4a7 7 0 1 0 3 9 8 8 0 0 1-3-9z" fill="#ffd60a"/><circle cx="6" cy="5" r="1" fill="#fff"/><circle cx="9" cy="9" r="0.8" fill="#fff"/>'},
+ {id:"garden",name:"Garden Party",line:"Flowers, butterflies and fresh air!",bg:"#8fe388",cols:["green","pink","gold","coral","lime","white"],pats:["dots","flowers"],fits:["aline","party","sundress"],shoes:["flats","rainboots"],accs:["hat","bow","flower"],icon:'<circle cx="12" cy="9" r="3" fill="#ffd60a"/><g fill="#ff5fa2"><circle cx="12" cy="4" r="2.6"/><circle cx="17" cy="7" r="2.6"/><circle cx="16" cy="13" r="2.6"/><circle cx="8" cy="13" r="2.6"/><circle cx="7" cy="7" r="2.6"/></g><path d="M12 13v8" stroke="#57cc99" stroke-width="2"/>'},
+ {id:"disco",name:"Neon Disco",line:"Glitter ball spinning, lights flashing!",bg:"#f72585",cols:["hot pink","purple","gold","silver","teal"],pats:["sparkle","stripes"],fits:["party","twopiece","cape"],shoes:["heels","sneakers"],accs:["earrings","necklace"],icon:'<circle cx="12" cy="12" r="8" fill="#ced4da"/><path d="M4 9h16M4 15h16M9 4v16M15 4v16" stroke="#868e96" stroke-width="1.4"/>'},
+ {id:"moviestar",name:"Movie Star Night",line:"Red carpet, flashing cameras, fancy fancy!",bg:"#e63946",cols:["red","black","gold","white"],pats:["sparkle"],fits:["gown","mermaid","cape"],shoes:["heels"],accs:["sunglasses","necklace","earrings"],icon:'<path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z" fill="#ffd60a"/>'}
 ];
 
 // ---------- rivals & career ----------
@@ -817,7 +957,7 @@ const LOCKED={ "acc:crown":8, "acc:wings":8, "hairc:rainbow":12, "pat:sparkle":1
 // ---------- state ----------
 // ponytail: everything in one save blob, localStorage only. No accounts, no cloud, she's five.
 const DEF_LOOK={ skin:["#f2c19a","peach"], iris:["#6b4423","brown"], hair:"long", hairc:["#7a4a21","light brown"], streak:true,
-  lips:null, shadow:null, blush:null, nails:null, glit:false, lash:false, frk:false, gem:false,
+  lips:null, shadow:null, blush:null, nails:null, glit:false, lash:false, frk:false, gem:false, hearts:false, stickers:false, wing:false,
   style:"aline", pat:["url(#pat-tiedye)","tie-dye","tiedye"], dress:["#ff2d95","pink"], shoe:"slides", shoec:["#ff5fa2","pink"], accs:[] };
 let S={ venue:0, wins:0, stars:0, trophies:[], unlocked:[], legend:false, look:null, lastTheme:"" };
 try{ const raw=localStorage.getItem("zoeyRunway2"); if(raw) S=Object.assign(S,JSON.parse(raw)); }catch(e){}
@@ -828,16 +968,383 @@ function saveState(){ S.look=zoey; try{ localStorage.setItem("zoeyRunway2",JSON.
 function curVenue(){ return VENUES[Math.min(S.venue,VENUES.length-1)]; }
 
 // ---------- doll instance styling ----------
-function styleOf(L){
-  let s="--d-skin:"+L.skin[0]+";--d-iris:"+L.iris[0]+";--d-hairc:"+L.hairc[0]+";--d-streak:"+(L.streak?.85:0)+";";
-  s+="--d-lips:"+(L.lips?L.lips[0]:"transparent")+";--d-shadow:"+(L.shadow?L.shadow[0]:"transparent")+";--d-blush:"+(L.blush?L.blush[0]:"transparent")+";--d-nails:"+(L.nails?L.nails[0]:"transparent")+";";
-  s+="--d-glit:"+(L.glit?1:0)+";--d-lash:"+(L.lash?1:0)+";--d-frk:"+(L.frk?.55:0)+";--d-gem:"+(L.gem?1:0)+";";
-  s+="--d-dress:"+L.dress[0]+";--d-pat:"+(L.pat?L.pat[0]:"transparent")+";--d-shoec:"+L.shoec[0]+";";
-  s+="--d-hair-"+L.hair+":block;--d-fit-"+L.style+":block;--d-shoe-"+L.shoe+":block;";
-  L.accs.forEach(a=>{ s+="--d-acc-"+a+":block;"; });
-  return s;
+const DOLL={};
+const TINT=new Map();
+let DOLL_READY=false;
+let GPU=null;
+const PAT_ID={dots:1,stripes:2,hearts:3,stars:4,sparkle:4,flowers:5,leo:6,tiedye:7};
+function gpu(){
+  if(GPU) return GPU.gl ? GPU : null;
+  try{ return gpuMake(); }
+  catch(e){ GPU={gl:null, err:String(e)}; return null; }
 }
-function refreshZoey(){ $("studioUse").style.cssText=styleOf(zoey); saveState(); }
+function gpuMake(){
+  const canvas=document.createElement("canvas");
+  const gl=canvas.getContext("webgl",{alpha:true,premultipliedAlpha:false,preserveDrawingBuffer:true});
+  if(!gl){ GPU={gl:null}; return null; }
+  function sh(type, src){
+    const s=gl.createShader(type);
+    gl.shaderSource(s,src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog=gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER,
+    "attribute vec2 aPos; varying vec2 vUv; void main(){ vUv=aPos*0.5+0.5; gl_Position=vec4(aPos,0.0,1.0); }"));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, [
+    "precision mediump float;",
+    "varying vec2 vUv;",
+    "uniform sampler2D uTex;",
+    "uniform vec3 uTint;",
+    "uniform float uMode;",
+    "uniform float uRainbow;",
+    "uniform float uPat;",
+    "uniform vec2 uSize;",
+    "uniform sampler2D uIrisTex;",
+    "uniform vec3 uLip;",
+    "uniform vec3 uBlushCol;",
+    "uniform vec3 uShadowCol;",
+    "uniform vec3 uIris;",
+    "uniform float uLipOn;",
+    "uniform float uBlushOn;",
+    "uniform float uShadowOn;",
+    "uniform float uIrisOn;",
+    "uniform float uLipRain;",
+    "uniform float uShadowRain;",
+    "vec3 rainbow(float x){",
+    "  float t=clamp(x,0.0,0.999)*5.0; float i=floor(t); float f=fract(t);",
+    "  vec3 A=i<1.0?vec3(1.0,0.176,0.584):i<2.0?vec3(1.0,0.584,0.02):i<3.0?vec3(1.0,0.839,0.039):i<4.0?vec3(0.341,0.800,0.600):vec3(0.227,0.525,1.0);",
+    "  vec3 B=i<1.0?vec3(1.0,0.584,0.02):i<2.0?vec3(1.0,0.839,0.039):i<3.0?vec3(0.341,0.800,0.600):i<4.0?vec3(0.227,0.525,1.0):vec3(0.514,0.220,0.925);",
+    "  return mix(A,B,f);",
+    "}",
+    "void main(){",
+    "  vec4 c=texture2D(uTex,vUv);",
+    "  if(c.a<0.06) discard;",
+    "  float lum=dot(c.rgb,vec3(0.30,0.59,0.11));",
+    "  float sat=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));",
+    "  vec3 tint=uRainbow>0.5?rainbow(vUv.x):uTint;",
+    "  if(uMode>0.5){",
+    "    vec2 px=vec2(vUv.x, 1.0-vUv.y)*uSize;",
+    "    bool peach=c.r>0.57 && c.g>0.39 && c.b>0.27 && c.r>c.b+0.07 && lum>0.50 && sat>0.07 && sat<0.51;",
+    "    vec3 col=c.rgb;",
+    "    if(peach) col=clamp(tint*(lum/0.82),0.0,1.0);",
+    "    if(uIrisOn>0.5 && texture2D(uIrisTex,vUv).a>0.45){",
+    "      col=clamp(uIris*clamp(lum/0.333,0.42,1.15),0.0,1.0);",
+    "    }",
+    "    if(uBlushOn>0.5 && peach){",
+    "      vec2 bL=(px-vec2(303.0,472.0))/vec2(34.0,22.0);",
+    "      vec2 bR=(px-vec2(533.0,471.0))/vec2(34.0,22.0);",
+    "      float bd=min(dot(bL,bL),dot(bR,bR));",
+    "      if(bd<1.0) col=mix(col, uBlushCol*clamp(lum/0.9,0.82,1.0), pow(max(1.0-bd,0.0),1.15)*0.92);",
+    "    }",
+    "    if(uShadowOn>0.5 && peach && px.y<396.0){",
+    "      vec2 sL=(px-vec2(326.0,374.0))/vec2(48.0,24.0);",
+    "      vec2 sR=(px-vec2(508.0,374.0))/vec2(48.0,24.0);",
+    "      float sd=min(dot(sL,sL),dot(sR,sR));",
+    "      if(sd<1.0){",
+    "        vec3 sc=(uShadowRain>0.5?rainbow(vUv.x):uShadowCol)*clamp(lum/0.85,0.72,1.0);",
+    "        col=mix(col, sc, pow(max(1.0-sd,0.0),1.05)*0.96);",
+    "      }",
+    "    }",
+    "    if(uLipOn>0.5){",
+    "      float nx=(px.x-417.0)/46.0;",
+    "      if(abs(nx)<1.0 && px.y>440.0 && px.y<518.0){",
+    "        float taper=sqrt(max(0.0,1.0-nx*nx));",
+    "        float curve=490.0-nx*nx*21.0;",
+    "        float up=6.0+16.0*taper;",
+    "        float dn=3.5+6.0*taper;",
+    "        float above=curve-px.y;",
+    "        float dlt=above>=0.0?above/up:-above/max(dn,0.001);",
+    "        if(dlt<1.0 && (peach || lum<0.45)){",
+    "          float k=clamp(pow(max(1.0-dlt,0.0),1.15)*1.2,0.0,1.0);",
+    "          vec3 lc=(uLipRain>0.5?rainbow(vUv.x):uLip)*mix(0.9,1.0,k);",
+    "          col=mix(col, lc, k);",
+    "        }",
+    "      }",
+    "    }",
+    "    gl_FragColor=vec4(col, c.a);",
+    "    return;",
+    "  }",
+    "  if(lum<0.22){ gl_FragColor=c; return; }",
+    "  vec3 col=clamp(tint*(0.55+lum*0.60),0.0,1.0);",
+    "  if(uPat>0.5){",
+    "    vec2 px=vUv*uSize; float on=0.0;",
+    "    if(uPat<1.5){ vec2 m=mod(px,14.0)-7.0; on=mod(floor(px.x/14.0)+floor(px.y/14.0),2.0)<0.5 && dot(m,m)<10.0 ? 1.0 : 0.0; }",
+    "    else if(uPat<2.5){ on=mod(px.x+px.y,16.0)<6.0 ? 1.0 : 0.0; }",
+    "    else if(uPat<3.5){ vec2 m=mod(px,vec2(28.0,26.0)); vec2 q=m-vec2(14.0,12.0); on=dot(q,q)<18.0 && m.y<18.0 ? 1.0 : 0.0; }",
+    "    else if(uPat<4.5){ on=mod(px.x,26.0)<3.0 && mod(px.y,26.0)<3.0 ? 1.0 : 0.0; }",
+    "    else if(uPat<5.5){ vec2 m=mod(px,30.0)-15.0; on=dot(m,m)<12.0 ? 1.0 : 0.0; }",
+    "    else if(uPat<6.5){ on=mod(px.x,22.0)<8.0 && mod(px.y,18.0)<6.0 ? 1.0 : 0.0; }",
+    "    else { on=mod(px.x*3.0+px.y*5.0,47.0)<8.0 ? 1.0 : 0.0; }",
+    "    if(on>0.5) col=min(col+vec3(0.27),vec3(1.0));",
+    "  }",
+    "  gl_FragColor=vec4(col,c.a);",
+    "}"
+  ].join("\n")));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+  const buf=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(prog,"aPos");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  const tex=gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  const irisTex=gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, irisTex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0,0,0,0]));
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.uniform1i(gl.getUniformLocation(prog,"uIrisTex"), 1);
+  GPU={gl, prog, tex, irisTex, u:{
+    tint:gl.getUniformLocation(prog,"uTint"),
+    mode:gl.getUniformLocation(prog,"uMode"),
+    rainbow:gl.getUniformLocation(prog,"uRainbow"),
+    pat:gl.getUniformLocation(prog,"uPat"),
+    size:gl.getUniformLocation(prog,"uSize"),
+    lip:gl.getUniformLocation(prog,"uLip"),
+    blush:gl.getUniformLocation(prog,"uBlushCol"),
+    shadow:gl.getUniformLocation(prog,"uShadowCol"),
+    iris:gl.getUniformLocation(prog,"uIris"),
+    lipOn:gl.getUniformLocation(prog,"uLipOn"),
+    blushOn:gl.getUniformLocation(prog,"uBlushOn"),
+    shadowOn:gl.getUniformLocation(prog,"uShadowOn"),
+    irisOn:gl.getUniformLocation(prog,"uIrisOn"),
+    lipRain:gl.getUniformLocation(prog,"uLipRain"),
+    shadowRain:gl.getUniformLocation(prog,"uShadowRain")
+  }};
+  return GPU;
+}
+function faceKey(face){
+  if(!face) return "";
+  return [
+    face.lips&&face.lips[0]||"", face.shadow&&face.shadow[0]||"", face.blush&&face.blush[0]||"",
+    face.iris&&face.iris[0]||"", face.nails&&face.nails[0]||"",
+    face.hearts?1:0, face.stickers?1:0, face.lash?1:0, face.frk?1:0, face.gem?1:0, face.glit?1:0, face.wing?1:0
+  ].join(",");
+}
+function hexRgb(hex){
+  if(!hex || hex[0]!=="#") return [1,1,1];
+  return [parseInt(hex.slice(1,3),16)/255, parseInt(hex.slice(3,5),16)/255, parseInt(hex.slice(5,7),16)/255];
+}
+function setCol(gl, loc, hex){ const c=hexRgb(hex); gl.uniform3f(loc, c[0], c[1], c[2]); }
+function hasDecal(face){
+  return !!(face && (face.nails || face.hearts || face.stickers || face.lash || face.frk || face.gem || face.glit || face.wing));
+}
+function starPath(ctx, cx, cy, r){
+  ctx.beginPath();
+  for(let i=0;i<10;i++){
+    const a=-Math.PI/2 + i*Math.PI/5;
+    const rad=i%2===0 ? r : r*0.42;
+    const x=cx+Math.cos(a)*rad, y=cy+Math.sin(a)*rad;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+}
+function heartPath(ctx, cx, cy, s){
+  ctx.beginPath();
+  ctx.moveTo(cx, cy+s*0.55);
+  ctx.bezierCurveTo(cx-s*0.15, cy+s*0.1, cx-s*1.15, cy-s*0.05, cx-s*0.62, cy-s*0.48);
+  ctx.bezierCurveTo(cx-s*0.28, cy-s*0.95, cx, cy-s*0.55, cx, cy-s*0.32);
+  ctx.bezierCurveTo(cx, cy-s*0.55, cx+s*0.28, cy-s*0.95, cx+s*0.62, cy-s*0.48);
+  ctx.bezierCurveTo(cx+s*1.15, cy-s*0.05, cx+s*0.15, cy+s*0.1, cx, cy+s*0.55);
+  ctx.closePath();
+}
+function paintGem(ctx, cx, cy, s){
+  ctx.beginPath();
+  ctx.moveTo(cx, cy-s); ctx.lineTo(cx+s*0.72, cy); ctx.lineTo(cx, cy+s); ctx.lineTo(cx-s*0.72, cy);
+  ctx.closePath();
+  ctx.fillStyle="#3a86ff"; ctx.strokeStyle="#1d4e89"; ctx.lineWidth=1.5;
+  ctx.fill(); ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(cx, cy-s); ctx.lineTo(cx+s*0.72, cy); ctx.lineTo(cx, cy);
+  ctx.closePath();
+  ctx.fillStyle="#cfe8ff"; ctx.fill();
+}
+function paintDecals(ctx, face){
+  ctx.save();
+  ctx.lineJoin="round"; ctx.lineCap="round";
+  if(face.hearts){
+    ctx.fillStyle="#ff2d95"; ctx.strokeStyle="#9d174d"; ctx.lineWidth=2.5;
+    [[303,472],[533,472]].forEach(([x,y])=>{ heartPath(ctx,x,y,17); ctx.fill(); ctx.stroke(); });
+  }
+  if(face.stickers){
+    ctx.fillStyle="#ffd60a"; ctx.strokeStyle="#c48a00"; ctx.lineWidth=2;
+    [[278,446],[554,446]].forEach(([x,y])=>{ starPath(ctx,x,y,12); ctx.fill(); ctx.stroke(); });
+  }
+  if(face.frk){
+    ctx.fillStyle="#a34e2c";
+    [[390,450],[416,456],[442,450],[346,466],[486,466],[366,446],[466,446],[400,466],[432,466]].forEach(([x,y])=>{
+      ctx.beginPath(); ctx.arc(x,y,3.6,0,Math.PI*2); ctx.fill();
+    });
+  }
+  if(face.gem) paintGem(ctx, 416, 348, 15);
+  if(face.glit){
+    ctx.fillStyle="#ffe566"; ctx.strokeStyle="#fff6c2"; ctx.lineWidth=1.5;
+    [[292,356],[416,286],[540,356],[360,340],[472,340]].forEach(([x,y])=>{ starPath(ctx,x,y,10); ctx.fill(); ctx.stroke(); });
+  }
+  if(face.lash){
+    ctx.strokeStyle="#1a1024"; ctx.lineWidth=4.5;
+    [[312,396,292,368],[326,388,318,360],[340,386,342,358],[356,390,368,366],
+     [524,396,544,368],[510,388,518,360],[494,386,492,358],[480,390,468,366]].forEach(L=>{
+      ctx.beginPath(); ctx.moveTo(L[0],L[1]); ctx.lineTo(L[2],L[3]); ctx.stroke();
+    });
+  }
+  if(face.wing){
+    ctx.strokeStyle="#1a1024"; ctx.lineWidth=5.5;
+    ctx.beginPath(); ctx.moveTo(308,402); ctx.lineTo(280,376); ctx.lineTo(266,368); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(528,402); ctx.lineTo(556,376); ctx.lineTo(570,368); ctx.stroke();
+  }
+  if(face.nails && face.nails[0] && face.nails[0][0]==="#"){
+    ctx.fillStyle=face.nails[0];
+    [[222,780],[214,792],[210,806],[216,816]].forEach(([x,y])=>{
+      ctx.beginPath(); ctx.ellipse(x, y, 5.4, 4.0, -0.4, 0, Math.PI*2); ctx.fill();
+    });
+    [[610,780],[622,792],[634,806],[628,816]].forEach(([x,y])=>{
+      ctx.beginPath(); ctx.ellipse(x, y, 5.4, 4.0, 0.4, 0, Math.PI*2); ctx.fill();
+    });
+  }
+  ctx.restore();
+}
+function tintImage(img, hex, mode, pattern, face){
+  const key=img.src+"|"+(hex||"")+"|"+mode+"|"+(pattern||"")+"|"+faceKey(face);
+  if(TINT.has(key)) return TINT.get(key);
+  let g;
+  try{ g=gpu(); }catch(e){ g=null; }
+  if(!g) return img.src;
+  const gl=g.gl, w=img.naturalWidth, h=img.naturalHeight;
+  gl.canvas.width=w; gl.canvas.height=h;
+  gl.viewport(0,0,w,h);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, g.tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  gl.clearColor(0,0,0,0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  const rainbow=String(hex||"").indexOf("url")===0;
+  let tint=[1,1,1];
+  if(!rainbow && hex && hex[0]==="#"){
+    tint=[parseInt(hex.slice(1,3),16)/255, parseInt(hex.slice(3,5),16)/255, parseInt(hex.slice(5,7),16)/255];
+  }
+  gl.uniform3f(g.u.tint, tint[0], tint[1], tint[2]);
+  gl.uniform1f(g.u.mode, mode==="skin"?1:0);
+  gl.uniform1f(g.u.rainbow, rainbow?1:0);
+  gl.uniform1f(g.u.pat, mode==="dress" ? (PAT_ID[pattern]||0) : 0);
+  gl.uniform2f(g.u.size, w, h);
+  const skin=mode==="skin" && face;
+  const lip=skin && face.lips && face.lips[0];
+  const shadow=skin && face.shadow && face.shadow[0];
+  const blush=skin && face.blush && face.blush[0];
+  const iris=skin && face.iris && face.iris[0] && String(face.iris[0]).toLowerCase()!=="#6b4423" && DOLL["face-iris"];
+  gl.uniform1f(g.u.lipOn, lip?1:0);
+  gl.uniform1f(g.u.shadowOn, shadow?1:0);
+  gl.uniform1f(g.u.blushOn, blush?1:0);
+  gl.uniform1f(g.u.irisOn, iris?1:0);
+  gl.uniform1f(g.u.lipRain, lip && String(lip).indexOf("url")===0 ? 1 : 0);
+  gl.uniform1f(g.u.shadowRain, shadow && String(shadow).indexOf("url")===0 ? 1 : 0);
+  if(lip) setCol(gl, g.u.lip, lip);
+  if(shadow) setCol(gl, g.u.shadow, shadow);
+  if(blush) setCol(gl, g.u.blush, blush);
+  if(iris){
+    setCol(gl, g.u.iris, face.iris[0]);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, g.irisTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, DOLL["face-iris"]);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, g.tex);
+  }
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
+  let url;
+  if(skin && hasDecal(face)){
+    const c=document.createElement("canvas");
+    c.width=w; c.height=h;
+    const ctx=c.getContext("2d");
+    ctx.drawImage(gl.canvas, 0, 0);
+    paintDecals(ctx, face);
+    url=c.toDataURL("image/png");
+  } else url=gl.canvas.toDataURL("image/png");
+  TINT.set(key,url);
+  return url;
+}
+function dollImg(scale, file, tint, mode, pattern, face){
+  const raw=DOLL[file];
+  if(!raw) return;
+  const img=document.createElement("img");
+  img.className="layer";
+  img.alt="";
+  img.src = (tint || face) ? tintImage(raw, tint, mode, pattern, face) : raw.src;
+  scale.appendChild(img);
+}
+function makeup(scale, look){
+  const accs=look.accs||[];
+  const ear=accs.includes("earrings");
+  const neck=accs.includes("necklace");
+  if(!ear && !neck) return;
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  svg.setAttribute("viewBox","0 0 832 1248");
+  svg.setAttribute("class","layer");
+  let h="";
+  if(ear){
+    h+='<circle cx="224" cy="448" r="15" fill="none" stroke="#ffd60a" stroke-width="6"/>';
+    h+='<circle cx="608" cy="448" r="15" fill="none" stroke="#ffd60a" stroke-width="6"/>';
+  }
+  if(neck){
+    h+='<path d="M372,596 Q416,640 460,596" fill="none" stroke="#ffd60a" stroke-width="8" stroke-linecap="round"/>';
+    h+='<circle cx="416" cy="628" r="14" fill="#ff2d95" stroke="#ffd60a" stroke-width="4"/>';
+  }
+  svg.innerHTML=h;
+  scale.appendChild(svg);
+}
+function renderDoll(el, look, crop){
+  if(!el || !DOLL_READY || !look) return;
+  el.classList.add("dollSlot");
+  if(crop) el.classList.add("face"); else el.classList.add("full");
+  el.replaceChildren();
+  const scale=document.createElement("div");
+  scale.className="dollScale";
+  if(look.accs && look.accs.includes("wings")) dollImg(scale, "acc-wings");
+  const hair=look.hair||"long";
+  dollImg(scale, "hair-"+hair+"-back", look.hairc && look.hairc[0], "hair");
+  dollImg(scale, "body", look.skin && look.skin[0], "skin", null, look);
+  dollImg(scale, "hair-"+hair+"-front", look.hairc && look.hairc[0], "hair");
+  if(look.style && look.dress) dollImg(scale, "fit-"+look.style, look.dress[0], "dress", look.pat && look.pat[2]);
+  if(look.shoe && look.shoec) dollImg(scale, "shoe-"+look.shoe, look.shoec[0], "shoe");
+  (look.accs||[]).forEach(a=>{
+    if(a==="wings"||a==="earrings"||a==="necklace") return;
+    const file=a==="tiara" ? "acc-crown" : "acc-"+a;
+    dollImg(scale, file);
+  });
+  makeup(scale, look);
+  el.appendChild(scale);
+}
+function refreshZoey(){ renderDoll($("studioDoll"), zoey, "face"); saveState(); }
+function preloadDoll(){
+  const files=["body","face-iris"];
+  ["long","bob","braid","pony","spacebuns","bun","curly","pigtails"].forEach(h=>{ files.push("hair-"+h+"-back","hair-"+h+"-front"); });
+  ["sundress","gown","aline","party","hoodie","tutu","cape","mermaid","onesie","twopiece"].forEach(f=>files.push("fit-"+f));
+  ["slides","sneakers","flats","rainboots","heels","boots","ballet"].forEach(s=>files.push("shoe-"+s));
+  ["crown","sunglasses","wings","bow","hat","scarf","flower","bunny","catears"].forEach(a=>files.push("acc-"+a));
+  return Promise.all(files.map(f=>new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{ DOLL[f]=img; res(); };
+    img.onerror=()=>res();
+    img.src="doll/"+f+".png";
+  }))).then(()=>{ DOLL_READY=true; refreshZoey(); });
+}
 
 // ---------- sound ----------
 let AC=null;
@@ -984,7 +1491,7 @@ function buildShapes(){
     refreshZoey(); ding(440);
   };
 }
-const TOGGLES=[["twGlit","glit"],["twLash","lash"],["twFrk","frk"],["twGem","gem"],["twStreak","streak"]];
+const TOGGLES=[["twGlit","glit"],["twLash","lash"],["twFrk","frk"],["twGem","gem"],["twHeart","hearts"],["twSticker","stickers"],["twWing","wing"],["twStreak","streak"]];
 function buildToggles(){
   TOGGLES.forEach(([id,key])=>{
     const el=$(id);
@@ -993,11 +1500,13 @@ function buildToggles(){
   });
 }
 function buildTabs(){
-  const TABVIEW={ makeup:["pal-makeup","30 2 160 160"], hair:["pal-hair","22 0 176 205"], clothes:["pal-clothes","15 0 190 415"] };
+  const TABVIEW={ makeup:"pal-makeup", hair:"pal-hair", clothes:"pal-clothes" };
+  const TABZOOM={ makeup:"zoom-face", hair:"zoom-head", clothes:"zoom-full" };
   document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on")); t.classList.add("on");
-    for(const k in TABVIEW) $(TABVIEW[k][0]).style.display = k===t.dataset.tab ? "block" : "none";
-    $("studioSvg").setAttribute("viewBox", TABVIEW[t.dataset.tab][1]);
+    for(const k in TABVIEW) $(TABVIEW[k]).style.display = k===t.dataset.tab ? "block" : "none";
+    $("studioDoll").classList.remove("zoom-face","zoom-head","zoom-full");
+    $("studioDoll").classList.add(TABZOOM[t.dataset.tab]);
     ding(700);
   });
 }
@@ -1104,7 +1613,7 @@ async function runway(){
 async function walkDoll(look,name){
   const box=$("walkerBox");
   $("walkerName").textContent=name;
-  $("walkerUse").style.cssText=styleOf(look);
+  renderDoll($("walkerDoll"), look, "");
   box.classList.add("snap");
   box.classList.remove("near","pose","strut","visible");
   void box.offsetWidth;
@@ -1152,7 +1661,10 @@ function compliments(themeLines){
   pool.push("Those "+SHOEN[zoey.shoe]+"! Where can I get them?");
   zoey.accs.forEach(a=>pool.push("The "+ACCN[a]+"! Adorable!"));
   if(zoey.hairc)  pool.push("The "+zoey.hairc[1]+" hair is EVERYTHING!");
-  const hairLines={pigtails:"Pigtails! Adorable!",curly:"Those curls! Iconic!",bun:"That bun is pure elegance!",braid:"That braid is beautiful!",pony:"Love the ponytail swish!"};
+  const hairLines={pigtails:"Pigtails! Adorable!",curly:"Those curls! Iconic!",bun:"That bun is pure elegance!",braid:"That braid is beautiful!",pony:"Love the ponytail swish!",bob:"That bob is so cute!",spacebuns:"Space buns! Out of this world!"};
+  if(zoey.hearts) pool.push("Heart cheeks! I love them!");
+  if(zoey.stickers) pool.push("Gold stars on your cheeks!");
+  if(zoey.wing) pool.push("That cat-eye liner! Fierce!");
   if(hairLines[zoey.hair]) pool.push(hairLines[zoey.hair]);
   if(zoey.glit)   pool.push("SO much glitter. Fabulous!");
   if(zoey.frk)    pool.push("Those cute freckles!");
@@ -1174,8 +1686,8 @@ async function results(){
   ["zc0","zc1","zc2","cc0","cc1","cc2"].forEach(id=>{ $(id).classList.remove("flip"); $(id).textContent=""; });
   $("ztot").classList.remove("show"); $("ctot").classList.remove("show");
   $("banner").classList.remove("show"); $("againBtn").style.visibility="hidden";
-  $("lblZ").style.cssText=styleOf(zoey);
-  $("lblC").style.cssText=styleOf(cpu);
+  renderDoll($("lblZ"), zoey, "face");
+  renderDoll($("lblC"), cpu, "face");
   $("lblCName").textContent=rival.name;
   $("bubble").textContent="The judges are ready...";
   say("Judges, what do we think of Zoey?");
@@ -1242,7 +1754,7 @@ async function results(){
 
 // ---------- magazine cover ----------
 function showCover(advanced){
-  $("magUse").style.cssText=styleOf(zoey);
+  renderDoll($("magDoll"), zoey, "");
   $("magSub").textContent=(S.legend?"FASHION LEGEND EDITION":curVenue().rank.toUpperCase()+" ISSUE");
   $("magBanner").textContent="ZOEY WINS!";
   $("magTag").textContent = advanced ? "Next stop: "+curVenue().name+"!" : theme.name+" Champion — "+curVenue().name;
@@ -1302,6 +1814,7 @@ buildToggles();
 buildTabs();
 applyLookUI();
 refreshHud();
+preloadDoll();
 </script>
 </body>
 </html>
